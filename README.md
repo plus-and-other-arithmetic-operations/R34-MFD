@@ -16,6 +16,9 @@ Fully functional MFD made in LUA for the asc_nissan_r34_nur.
 - [ ] Change textures to math the real thing
 - [ ] Optimize bar menu
 - [ ] Correct turbo gauge scale
+- [ ] Get rid of placeholder textures (wait for h ell)
+- [ ] Check outline selection thickness
+- [ ] Check if memory in selected menus is needed or not
 
 **Credits:**
 
