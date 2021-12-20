@@ -19,6 +19,7 @@ Fully functional MFD made in LUA for the asc_nissan_r34_nur.
 - [ ] Get rid of placeholder textures (wait for h ell)
 - [ ] Check outline selection thickness
 - [ ] Check if memory in selected menus is needed or not
+- [ ] Generalize Menu screen
 
 **Credits:**
 
