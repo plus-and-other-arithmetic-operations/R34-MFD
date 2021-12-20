@@ -19,10 +19,10 @@ Fully functional MFD made in LUA for the asc_nissan_r34_nur.
 
 **Credits:**
 
- >touge: Base car to work with;
+ >黒狼#2628: Base car to work with;
  >
- >plus: Code;
+ >plus#3477: Code;
  >
- >h ell: Textures;
+ >h ell#6726: Textures;
  >
- >mehdi: Reference, bug testing, vetting, overall knowledge about the system.
+ >mehdi2344#1623: Reference, bug testing, vetting, overall knowledge about the system.
