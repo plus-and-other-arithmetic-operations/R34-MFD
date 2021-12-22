@@ -1,0 +1,10 @@
+local displayMesh = display.interactiveMesh{ mesh = "GEO_cockpit_HR_SUB9", resolution = vec2(512, 512)}
+local displayMesh2 = display.interactiveMesh{ mesh = "polymsh_extracted9", resolution = vec2(512, 512)}
+local displayMesh3 = display.interactiveMesh{ mesh = "GEO_cockpit_HR_SUB1", resolution = vec2(1024, 1024)}
+local btnMode = displayMesh2.clicked(vec2(456, 70),vec2(49, 18))
+local btnMenu = displayMesh2.clicked(vec2(455, 53),vec2(51, 17))
+local btnRight = displayMesh.clicked(vec2(196, 460),vec2(13, 23))
+local btnLeft = displayMesh.clicked(vec2(162, 458),vec2(13, 23))
+local btnDown = displayMesh.clicked(vec2(175, 481),vec2(23, 13))
+local btnUp = displayMesh.clicked(vec2(175, 447),vec2(23, 13))
+local btnMid = displayMesh3.clicked(vec2(387, 467),vec2(4, 4))
