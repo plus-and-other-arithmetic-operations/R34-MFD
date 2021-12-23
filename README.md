@@ -25,6 +25,7 @@ Fully functional MFD made in LUA for the asc_nissan_r34_nur.
 - [ ] Find accurate text font
 - [ ] Figure out greyed out select screen
 - [x] Generalize Menu screen
+- [ ] Port to ks r34 cars
 
 **Credits:**
 
