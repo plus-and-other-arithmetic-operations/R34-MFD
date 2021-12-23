@@ -16,13 +16,14 @@ Fully functional MFD made in LUA for the asc_nissan_r34_nur.
 - [ ] Change textures to match the real thing
 - [ ] Optimize bar menu
 - [ ] Correct turbo gauge scale
-- [ ] Get rid of placeholder textures (wait for h ell)
+- [x] Get rid of placeholder textures (wait for h ell)
 - [ ] Check outline selection thickness
-- [ ] Check if memory in selected menus is needed or not
-- [ ] Implement select screen with h ell's textures
-- [ ] Code hard limit in boost & other gauges if necessary
-- [ ] Fix ilja's mess
+- [x] Check if memory in selected menus is needed or not (It isn't)
+- [x] Implement select screen with h ell's textures
+- [ ] Code hard limit in boost & other gauges if necessary math.min(314,...)
+- [x] Fix ilja's mess
 - [ ] Find accurate text font
+- [ ] Figure out greyed out select screen
 - [x] Generalize Menu screen
 
 **Credits:**
