@@ -10,22 +10,43 @@ Fully functional MFD made in LUA for the asc_nissan_r34_nur.
 
 # TO-DO
 
-- [ ] Add small unit text to each gauge
-- [ ] Make intercooler temperature/exhaust temperature graphs
-- [ ] Tweak circular graphs to make them look less weird on rotation
-- [ ] Change textures to match the real thing
-- [ ] Optimize bar menu
+# Feature Implementation
+Stuff that needs to be added to complete the base implementation of the MFD
+- [x] Implement select screen with h ell's textures
+- [ ] Implement shift up screen
+- [ ] Port to ks r34 cars
+
+# Gauges
+Stuff that needs to be fixed to finalize the gauge implementation
 - [ ] Correct turbo gauge scale
+- [ ] Re-code gauge pivot logic using `offset=`
+- [ ] Add small unit text to each gauge
+- [ ] Maybe generalize gauge functions to simplify code?
+- [ ] Tweak circular gauges to make them look less weird on rotation
+
+# Graph
+Stuff that needs to be fixed to finalize the graph implementation
+- [ ] Make intercooler temperature/exhaust temperature graphs
+- [ ] Code hard limit in boost & other graphs if necessary math.min(314,...)
+
+# Textures
+Stuff that needs to be fixed to finalize the visuals
 - [x] Get rid of placeholder textures (wait for h ell)
+- [ ] Change textures to match the real thing
+
+# Accuracy (making it true to IRL)
+Stuff that needs to make the MFD true to its real life counterpart
 - [ ] Check outline selection thickness
 - [x] Check if memory in selected menus is needed or not (It isn't)
-- [x] Implement select screen with h ell's textures
-- [ ] Code hard limit in boost & other gauges if necessary math.min(314,...)
-- [x] Fix ilja's mess
 - [ ] Find accurate text font
-- [ ] Figure out greyed out select screen
+
+# Misc code improvements
+Stuff that needs to be fixed to make the code more compliant to good practices, run faster, etc.
+- [ ] Optimize bar menu
+- [x] Fix ilja's mess
+- [x] Figure out greyed out select screen
 - [x] Generalize Menu screen
-- [ ] Port to ks r34 cars
+
 
 **Credits:**
 
