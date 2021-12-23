@@ -23,6 +23,7 @@ Stuff that needs to be fixed to finalize the gauge implementation
 - [ ] Add small unit text to each gauge
 - [ ] Maybe generalize gauge functions to simplify code?
 - [ ] Tweak circular gauges to make them look less weird on rotation
+- [ ] Link shift up selection to emissive (use setExtraX and tweak emissive cfg)
 
 # Graph
 Stuff that needs to be fixed to finalize the graph implementation
