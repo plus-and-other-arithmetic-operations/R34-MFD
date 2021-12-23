@@ -19,10 +19,10 @@ Stuff that needs to be added to complete the base implementation of the MFD
 # Gauges
 Stuff that needs to be fixed to finalize the gauge implementation
 - [ ] Correct turbo gauge scale
-- [ ] Re-code gauge pivot logic using `offset=`
+- [x] Re-code gauge pivot logic using `offset=`
 - [ ] Add small unit text to each gauge
 - [ ] Maybe generalize gauge functions to simplify code?
-- [ ] Tweak circular gauges to make them look less weird on rotation
+- [x] Tweak circular gauges to make them look less weird on rotation
 - [ ] Link shift up selection to emissive (use setExtraX and tweak emissive cfg)
 
 # Graph
@@ -39,6 +39,7 @@ Stuff that needs to be fixed to finalize the visuals
 Stuff that needs to make the MFD true to its real life counterpart
 - [ ] Check outline selection thickness
 - [x] Check if memory in selected menus is needed or not (It isn't)
+- [x] Correct circular gauge behaviour and layering
 - [ ] Find accurate text font
 
 # Misc code improvements
