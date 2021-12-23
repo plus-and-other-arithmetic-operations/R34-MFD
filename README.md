@@ -11,7 +11,7 @@ Fully functional MFD made in LUA for the asc_nissan_r34_nur.
 # TO-DO
 
 - [ ] Add small unit text to each gauge
-- [ ] Make interior temperature/exhaust temperature graphs
+- [ ] Make intercooler temperature/exhaust temperature graphs
 - [ ] Tweak circular graphs to make them look less weird on rotation
 - [ ] Change textures to match the real thing
 - [ ] Optimize bar menu
