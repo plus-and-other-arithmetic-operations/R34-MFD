@@ -12,7 +12,7 @@ Fully functional MFD made in LUA for the asc_nissan_r34_nur.
 
 # Feature Implementation
 Stuff that needs to be added to complete the base implementation of the MFD
-- [ ] Port to new touge version
+- [x] Port to new touge version
 - [x] Implement select screen with h ell's textures
 - [ ] Implement shift up screen
 - [ ] Port to ks r34 cars
