@@ -19,8 +19,9 @@ Stuff that needs to be added to complete the base implementation of the MFD
 
 # Gauges
 Stuff that needs to be fixed to finalize the gauge implementation
-- [ ] Correct turbo gauge scale
+- [x] Correct turbo gauge scale
 - [x] Re-code gauge pivot logic using `offset=`
+- [ ] Correct turbo number reading
 - [ ] Add small unit text to each gauge
 - [ ] Maybe generalize gauge functions to simplify code?
 - [x] Tweak circular gauges to make them look less weird on rotation
