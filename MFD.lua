@@ -29,7 +29,8 @@ function idcLevel(rpm)
     return math.saturate(rpm/8000)*100-10 --find accurate equation
 end
 
-local maxValues = {["boost"]=-2, ["oilT"] = 70, ["waterT"] = 0, ["exhT"] = 0,["intT"]=0,["volt"] = 8}
+local maxValues = {["boost"]=-350, ["oilT"] = 70, ["waterT"] = 0, ["exhT"] = 0,["intT"]=0,["volt"] = 8}
+local maxValues2 = {["boost"]=-350, ["oilT"] = 70, ["waterT"] = 0, ["exhT"] = 0,["intT"]=0,["volt"] = 8}
 local tresholdValues = {["boost"]=1, ["throttle"]=75,["injector"]=75,["oilT"] = 120, ["waterT"] = 120, ["exhT"] = 875,["intT"]=50}
 
 function getBarColor(currentval,treshold)
@@ -162,6 +163,10 @@ function drawIntGauge(sidePivot, sidePos,sideOffset)
     maxTempPercentage = math.max(maxTempPercentage,tempPercentage)
     local maxRotation = (-maxTempPercentage) * 2.65 --2.65 is the rotation deg /100
 
+    display.text{pos = vec2(sideOffset+110,405), letter = vec2(40,60), spacing = -5,text="C", font = "c7_mid", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(sideOffset+95,400), letter = vec2(25,40), spacing = 0,text="o", font = "c7_mid", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(sideOffset+52,402), letter = vec2(40,60), spacing = 60,text="[]", font = "c7_mid", color= rgbm(1,1,1,1)}
+
     for i = 1, 80 do
         local thisRotation = (-tempPercentage) * 2.65 -- "-" turns rotation counter clockwise
         ui.beginRotation()
@@ -200,7 +205,8 @@ function drawIntGauge(sidePivot, sidePos,sideOffset)
     end
 
     display.image{image ="MFD.png",pos = vec2(sideOffset+125,70),size = mfdSize,color = rgbm(1,1,1,1), uvStart = vec2(0,520/1210),uvEnd = vec2(435/1536, 1024/1210)} --3rd gauge
-    
+    display.image{image ="MFD.png",pos = vec2(sideOffset+310,230),size = vec2(90,70),color = rgbm(1,1,1,1), uvStart = vec2(1416/1536,932/1210),uvEnd = vec2(1530/1536, 1024/1210)} -- int icon
+
     maxValues["intT"] = math.max(maxValues["intT"],ac.getSimState().ambientTemperature)
 
     display.text{width=205,pos = vec2(sideOffset+230, 318),alignment=1, letter = vec2(60, 50), spacing = -25,text=math.floor(maxValues["intT"]), font = "Microsquare", color= rgbm(0,0,0,1)}
@@ -223,6 +229,10 @@ function drawExhGauge(sidePivot, sidePos, sideOffset)
     local exhPercentage = (car.exhaustTemperature*100)/1000 -- conversion to %
     maxExhPercentage = math.max(maxExhPercentage,exhPercentage)
     local maxRotation = (-maxExhPercentage) * 2.65 --2.65 is the rotation deg /100
+
+    display.text{pos = vec2(sideOffset+110,405), letter = vec2(40,60), spacing = -5,text="C", font = "c7_mid", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(sideOffset+95,400), letter = vec2(25,40), spacing = 0,text="o", font = "c7_mid", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(sideOffset+52,402), letter = vec2(40,60), spacing = 60,text="[]", font = "c7_mid", color= rgbm(1,1,1,1)}
 
     for i = 1, 80 do
         local thisRotation = (-exhPercentage) * 2.65 -- "-" turns rotation counter clockwise
@@ -286,6 +296,9 @@ function drawVoltGauge(sidePivot, sidePos, sideOffset)
     local voltPercentage = (((car.batteryVoltage-8)*100)/8) -- conversion to %
     maxVoltPercentage = math.max(maxVoltPercentage,voltPercentage)
     local maxRotation = (-maxVoltPercentage) * 2.3 --2.3 is the rotation deg /100
+
+    display.text{pos = vec2(sideOffset+120,395), letter = vec2(50,70), spacing = -5,text="v", font = "c7_mid", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(sideOffset+82,413), letter = vec2(35,40), spacing = -7,text="[  ]", font = "c7_mid", color= rgbm(1,1,1,1)}
     
     for i = 1, 40 do
         local thisRotation = (-voltPercentage) * 2.3 -- "-" turns rotation counter clockwise
@@ -335,6 +348,12 @@ function drawFTorqueGauge(sidePivot, sidePos,sideOffset)
     maxFTorquePercentage = math.max(maxFTorquePercentage,torquePercentage)
     local maxRotation = (-maxFTorquePercentage) * 2.5 --2.5 is the rotation deg /100
 
+
+    display.text{pos = vec2(sideOffset+80,415), letter = vec2(30,45), spacing = -10,text="x10", font = "c7_mid", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(sideOffset+150,415), letter = vec2(25,45), spacing = 10,text="Nm", font = "c7_mid", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(sideOffset+151,401), letter = vec2(55,55), spacing = 10,text=".", font = "c7_mid", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(sideOffset+52,402), letter = vec2(40,60), spacing = 9,text="[  ]", font = "c7_mid", color= rgbm(1,1,1,1)}
+
     for i = 1, 80 do
         local thisRotation = (-torquePercentage) * 2.5 -- "-" turns rotation counter clockwise
         ui.beginRotation()
@@ -381,6 +400,9 @@ end
 function drawThrottleGauge(sidePivot, sidePos, sideOffset)
     local throttlePercentage = (car.gas*100) -- conversion to %
 
+    display.text{pos = vec2(sideOffset+117,402), letter = vec2(45,65), spacing = -5,text="%", font = "c7_mid", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(sideOffset+82,413), letter = vec2(35,40), spacing = -7,text="[  ]", font = "c7_mid", color= rgbm(1,1,1,1)}
+
     for i = 1, 80 do
         local thisRotation = (-throttlePercentage) * 2.25 -- "-" turns rotation counter clockwise
         ui.beginRotation()
@@ -424,6 +446,9 @@ function drawInjectorGauge(sidePivot, sidePos, sideOffset)
     local idcPercentage = idcLevel(car.rpm) -- conversion to %
     local thisRotation = (-idcPercentage) * 2.25 -- "-" turns rotation counter clockwise
     
+    display.text{pos = vec2(sideOffset+117,402), letter = vec2(45,65), spacing = -5,text="%", font = "c7_mid", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(sideOffset+82,413), letter = vec2(35,40), spacing = -7,text="[  ]", font = "c7_mid", color= rgbm(1,1,1,1)}
+
     for i = 1, 80 do
         
         ui.beginRotation()
@@ -460,7 +485,13 @@ function drawTurboGauge(sidePivot, sidePos, sideOffset)
     maxTurboPercentage = math.max(maxTurboPercentage,turboPercentage)
     local maxRotation = (-maxTurboPercentage+1) * 2.8
 
-     
+    display.text{pos = vec2(sideOffset+85,400), letter = vec2(30,40), spacing = -5,text="x100", font = "c7_mid", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(sideOffset+95,430), letter = vec2(25,40), spacing = 0,text="mmHg", font = "c7_mid", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(sideOffset+64,413), letter = vec2(20,40), spacing = 13,text="[   ]", font = "c7_mid", color= rgbm(1,1,1,1)}
+
+    display.text{pos = vec2(sideOffset+430,2), letter = vec2(15,25), spacing = -5,text="2", font = "c7_mid", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(sideOffset+325,5), letter = vec2(25,40), spacing = -5,text="kglcm", font = "c7_mid", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(sideOffset+310,2), letter = vec2(20,40), spacing = 13,text="[   ]", font = "c7_mid", color= rgbm(1,1,1,1)}
     
     for i = 1, 40 do
         
@@ -502,15 +533,29 @@ function drawTurboGauge(sidePivot, sidePos, sideOffset)
         ui.endPivotRotation(maxRotation + 145.5,sidePivot)
     end
 
-    displayedPressure = 2*(car.turboBoost*100)/100-0.2
-    maxValues["boost"] = math.max(maxValues["boost"],displayedPressure)
+    
 
 
     display.image{image ="MFD.png",pos = vec2(sideOffset+125,70),size = mfdSize,color = rgbm(1,1,1,1), uvStart = vec2(440/1536,520/1210),uvEnd = vec2(872/1536, 1024/1210)} --4th gauge
     display.image{image ="MFD.png",pos = vec2(sideOffset+330,240),size = vec2(90,70),color = rgbm(1,1,1,1), uvStart = vec2(1416/1536,282/1210),uvEnd = vec2(1530/1536, 374/1210)} --turbo icon
+   
     
-    display.text{width=205,pos = vec2(sideOffset+245, 318),alignment=1, letter = vec2(50, 40), spacing = -22,text=string.format("%.2f", maxValues["boost"]), font = "Microsquare", color= rgbm(0,0,0,1)}
-    display.text{width=205,pos = vec2(sideOffset+242, 315),alignment=1, letter = vec2(50, 40), spacing = -22,text=string.format("%.2f", maxValues["boost"]), font = "Microsquare", color= rgbm(1,1,1,1)}
+    if car.turboBoost < 0.12 then --christ, this sucks so much
+        displayedPressure = -350 + math.saturate(car.gas)*3.50
+    elseif car.turboBoost < 0.5 and car.turboBoost > 0.12 then
+        displayedPressure = car.turboBoost-0.14
+    else
+        displayedPressure = car.turboBoost+0.02
+    end
+    maxValues2["boost"] = math.max(maxValues2["boost"],displayedPressure)
+
+    if maxValues2["boost"] < 0 then
+        display.text{width=205,pos = vec2(sideOffset+245, 318),alignment=1, letter = vec2(50, 40), spacing = -22,text=math.floor(maxValues2["boost"]), font = "Microsquare", color= rgbm(0,0,0,1)}
+        display.text{width=205,pos = vec2(sideOffset+242, 315),alignment=1, letter = vec2(50, 40), spacing = -22,text=math.floor(maxValues2["boost"]), font = "Microsquare", color= rgbm(1,1,1,1)}
+    else
+        display.text{width=205,pos = vec2(sideOffset+245, 318),alignment=1, letter = vec2(50, 40), spacing = -22,text=string.format("%.2f", maxValues2["boost"]), font = "Microsquare", color= rgbm(0,0,0,1)}
+        display.text{width=205,pos = vec2(sideOffset+242, 315),alignment=1, letter = vec2(50, 40), spacing = -22,text=string.format("%.2f", maxValues2["boost"]), font = "Microsquare", color= rgbm(1,1,1,1)}
+    end
 
     display.text{pos = vec2(sideOffset+170, 370), letter = vec2(40,40), spacing = -20,text="-6", font = "Microsquare", color= rgbm(1,1,1,1)}
     display.text{pos = vec2(sideOffset+100, 335), letter = vec2(40,40), spacing = -20,text="-4", font = "Microsquare", color= rgbm(1,1,1,1)}
@@ -530,6 +575,10 @@ function drawOilTempGauge(sidePivot, sidePos, sideOffset)
     local oilPercentage = 13+(((car.oilTemperature-80)*100)/80) -- conversion to %
     maxOilPercentage = math.max(maxOilPercentage,oilPercentage)
     local maxOilRotation = (-maxOilPercentage) * 2.3
+
+    display.text{pos = vec2(sideOffset+110,405), letter = vec2(40,60), spacing = -5,text="C", font = "c7_mid", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(sideOffset+95,400), letter = vec2(25,40), spacing = 0,text="o", font = "c7_mid", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(sideOffset+52,402), letter = vec2(40,60), spacing = 60,text="[]", font = "c7_mid", color= rgbm(1,1,1,1)}
 
 
     for i = 1, 80 do
@@ -1573,7 +1622,7 @@ function update(dt)
     --drawTurboGauge(rightPivot,rightPos,rightOffset)
     --drawTurboGraph()
     
-    --drawThrottleGauge(rightPivot,rightPos,rightOffset)
+    --drawThrottleGauge(leftPivot,leftPos,leftOffset)
     --drawThrottleGraph()
 
     --drawInjectorGauge(rightPivot,rightPos,rightOffset)
