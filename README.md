@@ -37,6 +37,7 @@ Stuff that needs to be fixed to finalize the gauge implementation
 - [x] Link shift up selection to emissive (use setExtraX and tweak emissive cfg)
 - [ ] Draw --- text when below certain threshold
 - [ ] Add toggleable gauge tail
+- [ ] Interior temp gauge missing icon
 
 # Graph
 Stuff that needs to be fixed to finalize the graph implementation
