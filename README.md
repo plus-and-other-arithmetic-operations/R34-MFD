@@ -18,6 +18,7 @@ Stuff that needs to be added to complete the base implementation of the MFD
 - [x] Port to new touge version
 - [x] Implement select screen with h ell's textures
 - [x] Implement shift up screen
+- [ ] Implement return button
 - [ ] Port to ks r34 cars
 
 # Gauges
