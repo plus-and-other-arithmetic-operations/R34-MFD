@@ -31,13 +31,13 @@ Stuff that needs to be fixed to finalize the gauge implementation
 - [x] Correct turbo gauge scale
 - [x] Re-code gauge pivot logic using `offset=` - NOT DOABLE FOR NOW, SKILL ISSUE
 - [ ] Correct turbo number reading
-- [ ] Add small unit text to each gauge
+- [x] Add small unit text to each gauge
 - [x] Maybe generalize gauge functions to simplify code? - NOT DOABLE FOR NOW, SKILL ISSUE
 - [x] Tweak circular gauges to make them look less weird on rotation
 - [x] Link shift up selection to emissive (use setExtraX and tweak emissive cfg)
 - [ ] Draw --- text when below certain threshold
 - [ ] Add toggleable gauge tail
-- [ ] Interior temp gauge missing icon
+- [x] Interior temp gauge missing icon
 
 # Graph
 Stuff that needs to be fixed to finalize the graph implementation
