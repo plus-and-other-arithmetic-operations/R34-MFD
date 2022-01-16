@@ -22,6 +22,7 @@ Stuff that needs to be added to complete the base implementation of the MFD
 - [ ] Port to ks r34 cars
 - [x] Implement Red Zone Menu
 - [ ] Implement menu switchover when treshold is exceeded
+- [ ] Add resetting max values on bar menu when middle joystick button pressed
 - [ ] TWIN menu
 - [ ] Implement display menu
 
