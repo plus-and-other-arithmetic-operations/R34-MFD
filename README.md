@@ -21,6 +21,7 @@ Stuff that needs to be added to complete the base implementation of the MFD
 - [ ] Implement return button
 - [ ] Port to ks r34 cars
 - [x] Implement Red Zone Menu
+- [ ] Implement menu switchover when treshold is exceeded
 
 # Gauges
 Stuff that needs to be fixed to finalize the gauge implementation
