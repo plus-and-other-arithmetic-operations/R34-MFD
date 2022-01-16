@@ -51,7 +51,7 @@ Stuff that needs to make the MFD true to its real life counterpart
 
 # Misc code improvements
 Stuff that needs to be fixed to make the code more compliant to good practices, run faster, etc.
-- [ ] Optimize bar menu
+- [x] Optimize bar menu
 - [x] Fix ilja's mess
 - [x] Figure out greyed out select screen
 - [x] Generalize Menu screen
