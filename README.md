@@ -20,6 +20,7 @@ Stuff that needs to be added to complete the base implementation of the MFD
 - [x] Implement shift up screen
 - [ ] Implement return button
 - [ ] Port to ks r34 cars
+- [x] Implement Red Zone Menu
 
 # Gauges
 Stuff that needs to be fixed to finalize the gauge implementation
