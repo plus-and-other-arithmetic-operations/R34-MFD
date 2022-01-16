@@ -1,5 +1,6 @@
 ## R34 Multi Function Display
 Fully functional MFD made in LUA for the asc_nissan_r34_nur.
+For now, it requires different data.files, as it needs to override the shift up light control
 
 # Installation:
 
@@ -14,7 +15,7 @@ Fully functional MFD made in LUA for the asc_nissan_r34_nur.
 Stuff that needs to be added to complete the base implementation of the MFD
 - [x] Port to new touge version
 - [x] Implement select screen with h ell's textures
-- [ ] Implement shift up screen
+- [x] Implement shift up screen
 - [ ] Port to ks r34 cars
 
 # Gauges
@@ -25,7 +26,7 @@ Stuff that needs to be fixed to finalize the gauge implementation
 - [ ] Add small unit text to each gauge
 - [x] Maybe generalize gauge functions to simplify code? - NOT DOABLE FOR NOW, SKILL ISSUE
 - [x] Tweak circular gauges to make them look less weird on rotation
-- [ ] Link shift up selection to emissive (use setExtraX and tweak emissive cfg)
+- [x] Link shift up selection to emissive (use setExtraX and tweak emissive cfg)
 
 # Graph
 Stuff that needs to be fixed to finalize the graph implementation
