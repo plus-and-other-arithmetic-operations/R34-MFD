@@ -501,6 +501,8 @@ function drawTurboGauge(sidePivot, sidePos, sideOffset)
         ui.endPivotRotation(maxRotation + 145.5,sidePivot)
     end
 
+
+
     displayedPressure = 2*(car.turboBoost*100)/100-0.2
     maxValues["boost"] = math.max(maxValues["boost"],displayedPressure)
 
@@ -511,12 +513,16 @@ function drawTurboGauge(sidePivot, sidePos, sideOffset)
     display.text{width=205,pos = vec2(sideOffset+245, 318),alignment=1, letter = vec2(50, 40), spacing = -22,text=string.format("%.2f", maxValues["boost"]), font = "Microsquare", color= rgbm(0,0,0,1)}
     display.text{width=205,pos = vec2(sideOffset+242, 315),alignment=1, letter = vec2(50, 40), spacing = -22,text=string.format("%.2f", maxValues["boost"]), font = "Microsquare", color= rgbm(1,1,1,1)}
 
-    display.text{pos = vec2(sideOffset+145, 375), letter = vec2(55,45), spacing = -35,text="-0.5", font = "Microsquare", color= rgbm(1,1,1,1)}
-    display.text{pos = vec2(sideOffset+80, 270), letter = vec2(55,45), spacing = -35,text="0", font = "Microsquare", color= rgbm(1,1,1,1)}
-    display.text{pos = vec2(sideOffset+60, 110), letter = vec2(55,45), spacing = -35,text="0.5", font = "Microsquare", color= rgbm(1,1,1,1)}
-    display.text{pos = vec2(sideOffset+200, 25), letter = vec2(55,45), spacing = -35,text="1.0", font = "Microsquare", color= rgbm(1,1,1,1)}
-    display.text{pos = vec2(sideOffset+355, 60), letter = vec2(55,45), spacing = -35,text="1.5", font = "Microsquare", color= rgbm(1,1,1,1)}
-    display.text{pos = vec2(sideOffset+420, 195), letter = vec2(55,45), spacing = -35,text="2.0", font = "Microsquare", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(sideOffset+170, 370), letter = vec2(40,40), spacing = -20,text="-6", font = "Microsquare", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(sideOffset+100, 335), letter = vec2(40,40), spacing = -20,text="-4", font = "Microsquare", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(sideOffset+60, 280), letter = vec2(40,40), spacing = -20,text="-2", font = "Microsquare", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(sideOffset+75, 215), letter = vec2(40,40), spacing = -20,text="0", font = "Microsquare", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(sideOffset+65, 120), letter = vec2(40,40), spacing = -25,text="0.2", font = "Microsquare", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(sideOffset+140, 50), letter = vec2(40,40), spacing = -25,text="0.4", font = "Microsquare", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(sideOffset+240, 25), letter = vec2(40,40), spacing = -25,text="0.6", font = "Microsquare", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(sideOffset+330, 40), letter = vec2(40,40), spacing = -25,text="0.8", font = "Microsquare", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(sideOffset+400, 110), letter = vec2(40,40), spacing = -25,text="1.0", font = "Microsquare", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(sideOffset+420, 205), letter = vec2(40,40), spacing = -25,text="1.2", font = "Microsquare", color= rgbm(1,1,1,1)}
 end
 
 
@@ -924,11 +930,13 @@ local btnDown = displayMesh.clicked(vec2(165, 177),vec2(32, 25))
 local btnUp = displayMesh.clicked(vec2(291, 177),vec2(28, 27))
 local btnMid = displayMesh.clicked(vec2(216, 164),vec2(54, 54))
 
-local modeNumber = 3
+local modeNumber = 1 --starts in Bar Menu
 local isMenuActive = false
 local isSelectActive = false
+local isShiftActive = false
 
 local menuOptions = {1,0,0}
+local menu1Options = {0,1,0}
 local activeMenu = {"SELECT","RED ZONE", "SHIFT UP"}
 local currentActiveMenu = "SELECT"
 
@@ -1054,7 +1062,7 @@ function drawGraph()
     end
 end
 
-function drawMenuMode(isGreyedOut)
+function drawMenuMode()
     display.text{pos = vec2(50, 0), letter = vec2(60,50), spacing = -22,text="MENU", font = "Microsquare", color= rgbm(1,1,1,1)}
     display.text{pos = vec2(40, 50), letter = vec2(50,40), spacing = -20,text="SELECT", font = "Microsquare", color= rgbm(1,1,1,1)}
     display.text{pos = vec2(250, 50), letter = vec2(45,40), spacing = -20,text="RED ZONE", font = "Microsquare", color= rgbm(1,1,1,1)}
@@ -1103,26 +1111,155 @@ function drawMenuMode(isGreyedOut)
         
         if menuOptions[1] == 1 then
             currentActiveMenu = activeMenu[1]
-            if modeNumber == 3 then
-                isSelectActive = true
-            end
-        
+            isSelectActive = true
         elseif menuOptions[2] == 1 then
             currentActiveMenu = activeMenu[2]
-            if modeNumber == 3 then
-                isSelectActive = true
-            end
-        
+            --isRedZonetActive = true
         elseif menuOptions[3] == 1 then
             currentActiveMenu = activeMenu[3]
-            if modeNumber == 3 then
-                isSelectActive = true
-            end
+            isShiftActive = true
         end
         isMenuActive = false
         
     end
 
+
+end
+
+function drawMenu1Mode()
+    display.text{pos = vec2(50, 0), letter = vec2(60,50), spacing = -22,text="MENU", font = "Microsquare", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(40, 50), letter = vec2(50,40), spacing = -20,text="SELECT", font = "Microsquare", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(250, 50), letter = vec2(45,40), spacing = -20,text="RED ZONE", font = "Microsquare", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(475, 50), letter = vec2(45,40), spacing = -20,text="SHIFT UP", font = "Microsquare", color= rgbm(1,1,1,1)}
+
+
+    if btnRight() or btnLeft() then    
+        for i=2,3 do
+            if menu1Options[i] == 1 then
+                if btnRight() then
+                    if i == 3 then
+                        menu1Options[2] = 1
+                    else
+                        menu1Options[i+1]=1
+                    end
+                elseif btnLeft() then
+                    if i == 2 then
+                        menu1Options[3] = 1
+                    else 
+                        menu1Options[i-1]=1
+                    end 
+                end
+                menu1Options[i] = 0
+                goto continue            
+            end
+        end
+    end
+    ::continue::
+
+    for i=1,3 do
+
+        if menu1Options[i] == 1 then
+            ui.drawRect(vec2(-170+(220*i),-121+215),vec2(8+(220*i),49+215),rgbm(1,1,0,1),10,15,15)
+        elseif menu1Options[i] == 0 then
+            ui.drawRect(vec2(-170+(220*i),-121+215),vec2(8+(220*i),49+215),rgbm(0,0.01,0.09,1),10,15,20)        
+        end
+        if i==1 then
+            display.image{image ="MFD.png",pos = vec2(-173+(220*i),-121.5+215),size = vec2(185,175),color = rgbm(1,1,1,1), uvStart = vec2((600+185*(i-2))/1536,1025/1210),uvEnd = vec2((785+185*(i-2))/1536, 1210/1210)}
+        else
+            display.image{image ="MFD.png",pos = vec2(-173+(220*i),-121.5+215),size = vec2(185,175),color = rgbm(1,1,1,1), uvStart = vec2((600+185*(i-1))/1536,1025/1210),uvEnd = vec2((785+185*(i-1))/1536, 1210/1210)}
+        end
+    
+    end
+
+    if btnMid() then
+        
+        
+        if menu1Options[2] == 1 then
+            currentActiveMenu = activeMenu[2]
+            --isRedZoneActive == true
+            
+        
+        elseif menu1Options[3] == 1 then
+            currentActiveMenu = activeMenu[3]
+            
+            isShiftActive = true
+            
+        end
+        isMenuActive = false
+        
+    end
+
+end
+
+local j = 0
+local tresholds = {5000,6000,7000,8000,9000,10000}
+local shiftTreshold=8000
+function drawShiftMenu()
+    display.text{pos = vec2(50,0), letter = vec2(60,50), spacing = -22,text="SHIFT UP", font = "Microsquare", color= rgbm(1,1,1,1)}
+    display.image{image ="MFD.png",pos = vec2(320,85),size = vec2(350,350),color = rgbm(1,1,1,1), uvStart = vec2(896/1536,151/1210),uvEnd = vec2(1266/1536, 521/1210)}
+    display.image{image ="MFD.png",pos = vec2(820,160),size = vec2(80,270),color = rgbm(1,1,1,1), uvStart = vec2(1295/1536,250/1210),uvEnd = vec2(1375/1536, 520/1210)}
+
+    display.text{pos = vec2(460, 425), letter = vec2(50,45), spacing = -17,text="5", font = "Microsquare", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(300, 330), letter = vec2(50,45), spacing = -17,text="6", font = "Microsquare", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(280, 180), letter = vec2(50,45), spacing = -17,text="7", font = "Microsquare", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(400, 50), letter = vec2(50,45), spacing = -17,text="8", font = "Microsquare", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(585, 65), letter = vec2(50,45), spacing = -17,text="9", font = "Microsquare", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(660, 215), letter = vec2(50,45), spacing = -17,text="10", font = "Microsquare", color= rgbm(1,1,1,1)}
+
+    display.text{pos = vec2(815,110), letter = vec2(55,40), spacing = -20,text="UP", font = "Microsquare", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(760,430), letter = vec2(60,40), spacing = -20,text="DOWN", font = "Microsquare", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(185,400), letter = vec2(30,40), spacing = -10,text="x1000", font = "c7_mid", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(185,430), letter = vec2(30,40), spacing = -15,text="rl min", font = "c7_mid", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(164,413), letter = vec2(20,40), spacing = 12,text="[   ]", font = "c7_mid", color= rgbm(1,1,1,1)}
+    local shiftPercentage = j*20 -- conversion to %
+  
+    if btnUp() then
+
+        if j<5 then
+            j = j+1
+        end
+    elseif btnDown() then
+        if j>0 then
+            j = j-1
+        end
+
+    elseif btnMid() then
+        isShiftActive = false
+        shiftTreshold = tresholds[j+1]
+    end
+
+    if j ~= 0 then
+        for i = 0, 65 do
+            local thisRotation = (-shiftPercentage) * 2.697 -- "-" turns rotation counter clockwise
+            ui.beginRotation()
+            ui.beginRotation()
+
+            display.rect {
+                -- draws rectangle
+                pos = vec2(462,265),
+                size = vec2(10, 138),
+                color = rgbm(0,1,0,1)
+            }
+
+            ui.endRotation(-10,vec2(-50,0))
+            if shiftPercentage > (100 /65 * i) then
+                thisRotation = -(100 /65 * i) * 2.697
+            end
+            
+            ui.endPivotRotation(thisRotation+10, vec2(330,321),vec2(156,-68))
+
+        end
+    else
+        display.rect {
+            pos = vec2(489,265),
+            size = vec2(3, 138),
+            color = rgbm(0,1,0,1)
+        }
+    end
+
+
+    display.image{image ="MFD.png",pos = vec2(320,85),size = vec2(350,350),color = rgbm(1,1,1,1), uvStart = vec2(896/1536,151/1210),uvEnd = vec2(1266/1536, 521/1210)}
+    display.image{image ="MFD.png",pos = vec2(820,160),size = vec2(80,270),color = rgbm(1,1,1,1), uvStart = vec2(1295/1536,250/1210),uvEnd = vec2(1375/1536, 520/1210)}
 
 end
 
@@ -1140,7 +1277,10 @@ function modeBehaviour()
 
     if modeNumber == 1 then
         if isMenuActive then
-            drawMenuMode(true)
+            drawMenu1Mode()
+        elseif isShiftActive then
+            drawShiftMenu()
+        
         else
             drawBarMenu()
         end
@@ -1149,6 +1289,11 @@ function modeBehaviour()
     if modeNumber == 2 then
         if isMenuActive then
             drawMenuMode()
+        elseif isSelectActive then
+            drawSelectMenu()
+
+        elseif isShiftActive then
+            drawShiftMenu()
         else
             drawOilTempGauge(leftPivot,leftPos, leftOffset)
             drawTurboGauge(rightPivot,rightPos,rightOffset)
@@ -1160,10 +1305,21 @@ function modeBehaviour()
             drawMenuMode()
         elseif isSelectActive then
             drawSelectMenu()
+
+        elseif isShiftActive then
+            drawShiftMenu()
         else
             drawGraph()
         end
         
+    end
+end
+
+function shiftLightBehaviour()
+    if car.rpm >= shiftTreshold then
+        ac.setExtraSwitch(4,true)
+    else
+        ac.setExtraSwitch(4,false)
     end
 end
 
@@ -1193,11 +1349,12 @@ function update(dt)
     
     --drawIntGauge(leftPivot,leftPos,leftOffset)
     
-    drawMenuMode(true)
-    
-    --modeBehaviour()
+    --drawMenuMode(true)
+    shiftLightBehaviour()
+    modeBehaviour()
 
 
+    --drawShiftMenu()
     --drawSelectMenu()
     --drawBarMenu()
 
