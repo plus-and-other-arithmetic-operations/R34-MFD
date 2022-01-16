@@ -1,9 +1,11 @@
 ## R34 Multi Function Display
 Fully functional MFD made in LUA for the asc_nissan_r34_nur.
+
 For now, it requires different data.files, as it needs to override the shift up light control
 
 # Installation:
 
+- Set up CM to use unpacked folder and delete the first entry of digital_instruments.ini
 - Head over to `C:\Program Files (x86)\Steam\steamapps\common\assettocorsa\content\cars\asc_nissan_r34_nur\extension`
 - Place the downloaded files in the directory, overwriting the old ones.
 - Enjoy!
