@@ -31,6 +31,7 @@ Stuff that needs to be fixed to finalize the gauge implementation
 - [x] Maybe generalize gauge functions to simplify code? - NOT DOABLE FOR NOW, SKILL ISSUE
 - [x] Tweak circular gauges to make them look less weird on rotation
 - [x] Link shift up selection to emissive (use setExtraX and tweak emissive cfg)
+- [ ] Draw --- text when below certain threshold
 
 # Graph
 Stuff that needs to be fixed to finalize the graph implementation
