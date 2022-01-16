@@ -30,7 +30,7 @@ Stuff that needs to be added to complete the base implementation of the MFD
 Stuff that needs to be fixed to finalize the gauge implementation
 - [x] Correct turbo gauge scale
 - [x] Re-code gauge pivot logic using `offset=` - NOT DOABLE FOR NOW, SKILL ISSUE
-- [ ] Correct turbo number reading
+- [x] Correct turbo number reading
 - [x] Add small unit text to each gauge
 - [x] Maybe generalize gauge functions to simplify code? - NOT DOABLE FOR NOW, SKILL ISSUE
 - [x] Tweak circular gauges to make them look less weird on rotation
