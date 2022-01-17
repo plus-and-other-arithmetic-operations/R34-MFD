@@ -62,7 +62,7 @@ Stuff that needs to be fixed to make the code more compliant to good practices, 
 - [x] Fix ilja's mess
 - [x] Figure out greyed out select screen
 - [x] Generalize Menu screen
-
+- [ ] Change interior temp to intercooler temp
 
 **Credits:**
 
