@@ -55,6 +55,8 @@ Stuff that needs to make the MFD true to its real life counterpart
 - [x] Check if memory in selected menus is needed or not (It isn't)
 - [x] Correct circular gauge behaviour and layering
 - [ ] Find accurate text font
+- [ ] Change interior temp to intercooler temp
+- [ ] Find accurate attesa car variable 
 
 # Misc code improvements
 Stuff that needs to be fixed to make the code more compliant to good practices, run faster, etc.
@@ -62,7 +64,7 @@ Stuff that needs to be fixed to make the code more compliant to good practices, 
 - [x] Fix ilja's mess
 - [x] Figure out greyed out select screen
 - [x] Generalize Menu screen
-- [ ] Change interior temp to intercooler temp
+
 
 **Credits:**
 
