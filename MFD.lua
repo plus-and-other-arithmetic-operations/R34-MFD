@@ -74,7 +74,7 @@ function drawBarMenuGreenBars()
 
     --throttle bar (no max) --
 
-    display.horizontalBar{pos= vec2(405,115), size= vec2(285,45), delta=0, activeColor= rgbm(0,1,0,1), inactiveColor= rgbm(0,0,0,0), total=100, active=car.gas*100}
+    display.horizontalBar{pos= vec2(405,115), size= vec2(290,45), delta=0, activeColor= rgbm(0,1,0,1), inactiveColor= rgbm(0,0,0,0), total=100, active=car.gas*100}
     displayPercentageCustomInput(car.gas*100,120)
    
     --idc bar (no max?)--
@@ -106,14 +106,15 @@ function drawBarMenuGreenBars()
     ui.drawRectFilled(vec2(405+exhBar,355),vec2(405+exhBar+5,400),rgbm(1,1,1,1))        
     displayCelsiusCustomInput(car.exhaustTemperature, 357) --omitting boundary flag is the same as typing false
 
-    --interior temp bar--
-    
-    maxValues["intT"] = math.max(maxValues["intT"],ac.getSimState().ambientTemperature-23)
-    ambBar = maxValues["intT"]*29
+    --intercooler temp bar, not very realistic, oh well--
 
-    ui.drawRectFilled(vec2(405,415),vec2(410+(ac.getSimState().ambientTemperature-23)*29,460),rgbm(0,1,0,1))
-    ui.drawRectFilled(vec2(405+ambBar,415),vec2(405+ambBar+5,460),rgbm(1,1,1,1))    
-    displayCelsiusCustomInput(ac.getSimState().ambientTemperature, 417,true,0)
+    local intercoolerTemp = math.min(car.exhaustTemperature/10, 100) --coding hard limit
+    maxValues["intT"] = math.max(maxValues["intT"],car.exhaustTemperature/10)
+    intBar = maxValues["intT"]*2.9
+    
+    ui.drawRectFilled(vec2(405,415),vec2(410+(intercoolerTemp)*2.8,460),rgbm(0,1,0,1))
+    ui.drawRectFilled(vec2(405+intBar,415),vec2(405+intBar+5,460),rgbm(1,1,1,1))    
+    displayCelsiusCustomInput(intercoolerTemp, 417,true,0)
 
     --drawing all icons--
 
@@ -126,6 +127,27 @@ function drawBarMenuGreenBars()
     display.image{image ="MFD.png",pos = vec2(310,412),size = vec2(60,50),color = rgbm(1,1,1,1), uvStart = vec2(1416/1536,932/1210),uvEnd = vec2(1530/1536, 1024/1210)} -- int icon
 
 end
+
+local displayMesh = display.interactiveMesh{ mesh = "INT_BUTTON_NM", resolution = vec2(512, 512)}
+local displayMesh2 = display.interactiveMesh{ mesh = "INT_BUTTONS", resolution = vec2(512, 512)}
+local btnMode = displayMesh2.clicked(vec2(423, 34),vec2(63, 24))
+local btnMenu = displayMesh2.clicked(vec2(118, 246),vec2(63, 26))
+local btnReturn = displayMesh2.clicked(vec2(2, 245),vec2(95, 29))
+local btnDisp = displayMesh2.clicked(vec2(3, 107),vec2(61, 28))
+local btnRight = displayMesh.clicked(vec2(229, 241),vec2(28, 25))
+local btnLeft = displayMesh.clicked(vec2(226, 112),vec2(34, 32))
+local btnDown = displayMesh.clicked(vec2(165, 177),vec2(32, 25))
+local btnUp = displayMesh.clicked(vec2(291, 177),vec2(28, 27))
+local btnMid = displayMesh.clicked(vec2(216, 164),vec2(54, 54))
+local btnMidHold = displayMesh.pressed(vec2(216, 164),vec2(54, 54),1)
+
+setInterval(function()  --if held, reset max values
+    if btnMidHold() then        
+        maxValues = {["boost"]=-350, ["oilT"] = 70, ["waterT"] = 0, ["exhT"] = 0,["intT"]=0,["volt"] = 8}
+
+    end
+end
+,1.5)
 
 function drawBarMenu()
     local starterx=60
@@ -159,7 +181,7 @@ local maxTempPercentage = 0
 local mfdSize= vec2(324,380)
 
 function drawIntGauge(sidePivot, sidePos,sideOffset)
-    local tempPercentage = ac.getSimState().ambientTemperature
+    local tempPercentage = math.min(100, car.exhaustTemperature/10)
     maxTempPercentage = math.max(maxTempPercentage,tempPercentage)
     local maxRotation = (-maxTempPercentage) * 2.65 --2.65 is the rotation deg /100
 
@@ -207,7 +229,7 @@ function drawIntGauge(sidePivot, sidePos,sideOffset)
     display.image{image ="MFD.png",pos = vec2(sideOffset+125,70),size = mfdSize,color = rgbm(1,1,1,1), uvStart = vec2(0,520/1210),uvEnd = vec2(435/1536, 1024/1210)} --3rd gauge
     display.image{image ="MFD.png",pos = vec2(sideOffset+310,230),size = vec2(90,70),color = rgbm(1,1,1,1), uvStart = vec2(1416/1536,932/1210),uvEnd = vec2(1530/1536, 1024/1210)} -- int icon
 
-    maxValues["intT"] = math.max(maxValues["intT"],ac.getSimState().ambientTemperature)
+    maxValues["intT"] = math.max(maxValues["intT"],tempPercentage)
 
     display.text{width=205,pos = vec2(sideOffset+230, 318),alignment=1, letter = vec2(60, 50), spacing = -25,text=math.floor(maxValues["intT"]), font = "Microsquare", color= rgbm(0,0,0,1)}
     display.text{width=205,pos = vec2(sideOffset+230, 315),alignment=1, letter = vec2(60, 50), spacing = -25,text=math.floor(maxValues["intT"]), font = "Microsquare", color= rgbm(1,1,1,1)}
@@ -242,7 +264,7 @@ function drawExhGauge(sidePivot, sidePos, sideOffset)
             -- draws rectangle
             pos = sidePos,
             size = vec2(21, 120),
-            color = rgbm(0,1,0,1)
+            color = getBarColor(car.exhaustTemperature,tresholdValues["exhT"])
         }
         if i==80 then
             display.rect {
@@ -453,7 +475,7 @@ function drawInjectorGauge(sidePivot, sidePos, sideOffset)
         
         ui.beginRotation()
         ui.beginRotation()
-        display.rect {pos = sidePos,size = vec2(20, 120),color = rgbm(0,1,0,1)}
+        display.rect {pos = sidePos,size = vec2(20, 120),color = getBarColor(idcLevel(car.rpm),tresholdValues["injector"])}
         if i==80 then
             display.rect {pos = sidePos,size = vec2(7, 120),color = rgbm(1,0,0,1)}
         end
@@ -504,7 +526,7 @@ function drawTurboGauge(sidePivot, sidePos, sideOffset)
             -- draws rectangle
             pos = sidePos,
             size = vec2(20, 120),
-            color = rgbm(0,1,0,1)
+            color = getBarColor(2*math.floor(car.turboBoost*100)/100-0.3, tresholdValues["boost"])
         }
         if i==40 then
             display.rect {
@@ -589,7 +611,7 @@ function drawOilTempGauge(sidePivot, sidePos, sideOffset)
             -- draws rectangle
             pos = sidePos,
             size = vec2(21, 120),
-            color = rgbm(0,1,0,1)
+            color = getBarColor(car.oilTemperature,tresholdValues["oilT"])
         }
         if i==80 then
             display.rect {pos = sidePos,size = vec2(7, 120),color = rgbm(1,0,0,1)}
@@ -670,7 +692,7 @@ end
 local boostVals = fillTable(390)
 setInterval(function()
 
-    boostVals[1].y = 390-(31.5*(math.floor(math.abs(car.turboBoost)*10)))
+    boostVals[1].y = math.max(0,390-(31.5*(math.floor(math.abs(car.turboBoost)*10))))
     
     for i = 1, 298,2 do
         boostVals[i+1].y=boostVals[i].y
@@ -685,7 +707,7 @@ end
 
 
 
-function drawTurboGraph()   
+function drawTurboGraph() 
 
     local starterBoost = 2
     
@@ -722,7 +744,7 @@ end
 
 local throttleVals = fillTable(399)
 setInterval(function()
-    throttleVals[1].y = 399-(324*car.gas)   
+    throttleVals[1].y = math.max(0,399-(324*car.gas)) 
     for i = 1, 298,2 do
         throttleVals[i+1].y=throttleVals[i].y
         if i==1 then
@@ -768,7 +790,7 @@ end
 
 local idcVals = fillTable(399)
 setInterval(function()
-    idcVals[1].y = 399-(3.24*idcLevel(car.rpm))   
+    idcVals[1].y = math.max(0,399-(3.24*idcLevel(car.rpm)))   
     for i = 1, 298,2 do
         idcVals[i+1].y=idcVals[i].y
         if i==1 then
@@ -819,7 +841,7 @@ end
 local voltVals = fillTable(399)
 setInterval(function()
    
-    voltVals[1].y = 399-(3.24*(((car.batteryVoltage-8)*100)/8))   
+    voltVals[1].y = math.max(0,399-(3.24*(((car.batteryVoltage-8)*100)/8)))
     for i = 1, 298,2 do
         voltVals[i+1].y=voltVals[i].y
         if i==1 then
@@ -870,7 +892,7 @@ end
 local torqueVals = fillTable(399)
 setInterval(function()
    
-    torqueVals[1].y = 399-(0.324*math.abs(car.drivetrainTorque))   
+    torqueVals[1].y = math.max(0,399-(0.324*math.abs(car.drivetrainTorque)))
     for i = 1, 298,2 do
         torqueVals[i+1].y=torqueVals[i].y
         if i==1 then
@@ -922,7 +944,7 @@ end
 
 local oilVals = fillTable(399)
 setInterval(function()  
-    oilVals[1].y = 399-(3.24*13+(((car.oilTemperature-80)*100)/80))   
+    oilVals[1].y = math.max(0,399-(3.24*13+(((car.oilTemperature-80)*100)/80)))
     for i = 1, 298,2 do
         oilVals[i+1].y=oilVals[i].y
         if i==1 then
@@ -968,17 +990,103 @@ function drawOilTempGraph()
     end 
 end
 
-local displayMesh = display.interactiveMesh{ mesh = "INT_BUTTON_NM", resolution = vec2(512, 512)}
-local displayMesh2 = display.interactiveMesh{ mesh = "INT_BUTTONS", resolution = vec2(512, 512)}
-local btnMode = displayMesh2.clicked(vec2(423, 34),vec2(63, 24))
-local btnMenu = displayMesh2.clicked(vec2(118, 246),vec2(63, 26))
-local btnReturn = displayMesh2.clicked(vec2(2, 245),vec2(95, 29))
-local btnDisp = displayMesh2.clicked(vec2(3, 107),vec2(61, 28))
-local btnRight = displayMesh.clicked(vec2(229, 241),vec2(28, 25))
-local btnLeft = displayMesh.clicked(vec2(226, 112),vec2(34, 32))
-local btnDown = displayMesh.clicked(vec2(165, 177),vec2(32, 25))
-local btnUp = displayMesh.clicked(vec2(291, 177),vec2(28, 27))
-local btnMid = displayMesh.clicked(vec2(216, 164),vec2(54, 54))
+local exhVals = fillTable(399)
+setInterval(function()  
+    exhVals[1].y = math.max(0,399-0.324*car.exhaustTemperature)
+    for i = 1, 298,2 do
+        exhVals[i+1].y=exhVals[i].y
+        if i==1 then
+            exhVals[i].y=exhVals[#exhVals].y
+        else
+            exhVals[i].y=exhVals[i-1].y
+        end
+    end
+end
+,0.1)
+
+function drawExhGraph()
+    local basey = 57
+    local starterTemp = 1000
+    display.rect {pos = vec2(120,50),size = vec2(2, 350),color = rgbm(1,1,1,1)}
+    display.rect {pos = vec2(120,400),size = vec2(350, 2),color = rgbm(1,1,1,1)}
+    for i=0, 3 do 
+        display.rect {pos = vec2(120+(116*i),50),size = vec2(2, 350),color = rgbm(1,1,1,0.1)}
+        display.rect {pos = vec2(120+(115*i),405),size = vec2(5, 20),color = rgbm(1,1,1,1)}
+    end
+
+    display.text{pos = vec2(441, 425), letter = vec2(40,35), spacing = -17,text="0", font = "Microsquare", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(317, 425), letter = vec2(40,35), spacing = -17,text="10", font = "Microsquare", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(200, 425), letter = vec2(40,35), spacing = -17,text="20", font = "Microsquare", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(87, 425), letter = vec2(40,35), spacing = -17,text="30", font = "Microsquare", color= rgbm(1,1,1,1)}
+
+    for i=0,10 do
+        display.text{width=120,alignment=1,pos = vec2(-10,basey+(33*i)), letter = vec2(35,30), spacing = -17,text=starterTemp, font = "Microsquare", color= rgbm(1,1,1,1)}
+        basey = basey
+        starterTemp = starterTemp -100
+    end
+
+    for i = 0, 10 do
+        display.rect {pos = vec2(108,73+(32.5*i)),size = vec2(10, 5),color = rgbm(1,1,1,1)}
+        display.rect {pos = vec2(120,75+(32.5*i)),size = vec2(350, 2),color = rgbm(1,1,1,0.1)}   
+    end
+    
+    for i = 0, 9 do
+        display.rect {pos = vec2(112,90+(32.5*i)),size = vec2(6, 3),color = rgbm(1,1,1,1)}
+    end
+
+    for i = 3, 300 do
+        ui.drawLine(exhVals[i-1], exhVals[i], rgbm(0,1,0,1),1)
+    end 
+end
+
+local intVals = fillTable(399)
+setInterval(function()  
+    intVals[1].y = math.max(0,399-3.24*car.exhaustTemperature/10)
+    for i = 1, 298,2 do
+        intVals[i+1].y=intVals[i].y
+        if i==1 then
+            intVals[i].y=intVals[#intVals].y
+        else
+            intVals[i].y=intVals[i-1].y
+        end
+    end
+end
+,0.1)
+
+function drawIntGraph()
+    local basey = 57
+    local starterTemp = 100
+    display.rect {pos = vec2(120,50),size = vec2(2, 350),color = rgbm(1,1,1,1)}
+    display.rect {pos = vec2(120,400),size = vec2(350, 2),color = rgbm(1,1,1,1)}
+    for i=0, 3 do 
+        display.rect {pos = vec2(120+(116*i),50),size = vec2(2, 350),color = rgbm(1,1,1,0.1)}
+        display.rect {pos = vec2(120+(115*i),405),size = vec2(5, 20),color = rgbm(1,1,1,1)}
+    end
+
+    display.text{pos = vec2(441, 425), letter = vec2(40,35), spacing = -17,text="0", font = "Microsquare", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(317, 425), letter = vec2(40,35), spacing = -17,text="10", font = "Microsquare", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(200, 425), letter = vec2(40,35), spacing = -17,text="20", font = "Microsquare", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(87, 425), letter = vec2(40,35), spacing = -17,text="30", font = "Microsquare", color= rgbm(1,1,1,1)}
+
+    for i=0,10 do
+        display.text{width=120,alignment=1,pos = vec2(-10,basey+(33*i)), letter = vec2(35,30), spacing = -17,text=starterTemp, font = "Microsquare", color= rgbm(1,1,1,1)}
+        basey = basey
+        starterTemp = starterTemp - 10
+    end
+
+    for i = 0, 10 do
+        display.rect {pos = vec2(108,73+(32.5*i)),size = vec2(10, 5),color = rgbm(1,1,1,1)}
+        display.rect {pos = vec2(120,75+(32.5*i)),size = vec2(350, 2),color = rgbm(1,1,1,0.1)}   
+    end
+    
+    for i = 0, 9 do
+        display.rect {pos = vec2(112,90+(32.5*i)),size = vec2(6, 3),color = rgbm(1,1,1,1)}
+    end
+
+    for i = 3, 300 do
+        ui.drawLine(intVals[i-1], intVals[i], rgbm(0,1,0,1),1)
+    end 
+end
 
 local modeNumber = 1 --starts in Bar Menu
 local isMenuActive = false
@@ -1107,9 +1215,12 @@ function drawGraph()
     elseif currentActive == "OIL-TEMP" then 
         drawOilTempGauge(rightPivot,rightPos, rightOffset)
         drawOilTempGraph()
-    else
-        drawTurboGauge(rightPivot,rightPos,rightOffset)
-        drawTurboGraph()
+    elseif currentActive == "EXH-TEMP" then 
+        drawExhGauge(rightPivot,rightPos, rightOffset)
+        drawExhGraph()
+    elseif currentActive == "INT-TEMP" then 
+        drawIntGauge(rightPivot,rightPos, rightOffset)
+        drawIntGraph()
     end
 end
 
@@ -1616,6 +1727,32 @@ function shiftLightBehaviour()
     end
 end
 
+
+local switchOver = false
+setInterval(function()  --switches to bar menu for 1 second if sensor limit was exceeded
+    if
+    getBarColor(car.exhaustTemperature,tresholdValues["exhT"]) == rgbm(1,0,0,1) or 
+    getBarColor(idcLevel(car.rpm),tresholdValues["injector"]) == rgbm(1,0,0,1) or
+    getBarColor(2*math.floor(car.turboBoost*100)/100-0.3, tresholdValues["boost"]) == rgbm(1,0,0,1) or 
+    getBarColor(car.oilTemperature,tresholdValues["oilT"]) == rgbm(1,0,0,1) or 
+    getBarColor(car.waterTemperature,tresholdValues["waterT"]) == rgbm(1,0,0,1) or 
+    getBarColor(car.exhaustTemperature,tresholdValues["exhT"])	 == rgbm(1,0,0,1) then
+        
+        switchOver = true  
+    else
+        switchOver = false
+    end
+end
+,1)
+
+function detectSwitchover()
+    if switchOver then
+        display.rect{pos= vec2(0,0), size= vec2(940,490), color= rgbm(0,0.01,0.09,1)}
+        drawBarMenu()
+    end
+end
+
+
 function update(dt)
     display.rect{pos= vec2(0,0), size= vec2(940,490), color= rgbm(0,0.01,0.09,1)}
     
@@ -1639,18 +1776,22 @@ function update(dt)
     --drawFTorqueGraph()
 
     --drawExhGauge(rightPivot,rightPos,rightOffset)
-    
+    --drawExhGraph()
+
     --drawIntGauge(leftPivot,leftPos,leftOffset)
-    
+    --drawIntGraph()
+
     --drawMenuMode(true)
     --shiftLightBehaviour()
     modeBehaviour()
+    detectSwitchover()
     if btnDisp() then --hacky but easier to do this since it always opens on top of every menu
         isDisplayActive = not isDisplayActive
     end
     if isDisplayActive then
         drawDisplayMenu()
     end
+
 
     --drawRedMenu()
     --drawShiftMenu()
