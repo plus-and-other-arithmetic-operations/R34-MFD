@@ -21,8 +21,8 @@ Stuff that needs to be added to complete the base implementation of the MFD
 - [ ] Implement return button
 - [ ] Port to ks r34 cars
 - [x] Implement Red Zone Menu
-- [ ] Implement menu switchover when treshold is exceeded
-- [ ] Add resetting max values on bar menu when middle joystick button pressed
+- [x] Implement menu switchover when treshold is exceeded
+- [x] Add resetting max values on bar menu when middle joystick button pressed
 - [ ] TWIN menu
 - [ ] Implement display menu
 
@@ -38,7 +38,7 @@ Stuff that needs to be fixed to finalize the gauge implementation
 - [ ] Draw --- text when below certain threshold
 - [ ] Add toggleable gauge tail
 - [x] Interior temp gauge missing icon
-- [ ] Make gauges flash red when maxxed out
+- [x] Make gauges flash red when maxxed out
 
 # Graph
 Stuff that needs to be fixed to finalize the graph implementation
