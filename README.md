@@ -42,8 +42,8 @@ Stuff that needs to be fixed to finalize the gauge implementation
 
 # Graph
 Stuff that needs to be fixed to finalize the graph implementation
-- [ ] Make intercooler temperature/exhaust temperature graphs
-- [ ] Code hard limit in boost & other graphs if necessary math.min(314,...)
+- [x] Make intercooler temperature/exhaust temperature graphs
+- [x] Code hard limit in boost & other graphs if necessary math.min(314,...)
 
 # Textures
 Stuff that needs to be fixed to finalize the visuals
@@ -56,7 +56,7 @@ Stuff that needs to make the MFD true to its real life counterpart
 - [x] Check if memory in selected menus is needed or not (It isn't)
 - [x] Correct circular gauge behaviour and layering
 - [ ] Find accurate text font
-- [ ] Change interior temp to intercooler temp
+- [x] Change interior temp to intercooler temp
 - [ ] Find accurate attesa car variable 
 
 # Misc code improvements
