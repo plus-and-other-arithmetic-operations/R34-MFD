@@ -26,6 +26,7 @@ Stuff that needs to be added to complete the base implementation of the MFD
 - [ ] TWIN menu
 - [ ] Implement display menu
 - [ ] Add start animation
+- [ ] Store saved settings in a way that it persists between sessions 
 
 # Gauges
 Stuff that needs to be fixed to finalize the gauge implementation
