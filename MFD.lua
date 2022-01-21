@@ -370,7 +370,7 @@ function drawFTorqueGauge(sidePivot, sidePos,sideOffset)
     maxFTorquePercentage = math.max(maxFTorquePercentage,torquePercentage)
     local maxRotation = (-maxFTorquePercentage) * 2.5 --2.5 is the rotation deg /100
 
-
+    ac.log(car.wheels[0].slipRatio)
     display.text{pos = vec2(sideOffset+80,415), letter = vec2(30,45), spacing = -10,text="x10", font = "c7_mid", color= rgbm(1,1,1,1)}
     display.text{pos = vec2(sideOffset+150,415), letter = vec2(25,45), spacing = 10,text="Nm", font = "c7_mid", color= rgbm(1,1,1,1)}
     display.text{pos = vec2(sideOffset+151,401), letter = vec2(55,55), spacing = 10,text=".", font = "c7_mid", color= rgbm(1,1,1,1)}
@@ -401,8 +401,8 @@ function drawFTorqueGauge(sidePivot, sidePos,sideOffset)
     display.image{image ="MFD.png",pos = vec2(sideOffset+128,70),size = mfdSize,color = rgbm(1,1,1,1), uvStart = vec2(0,0),uvEnd = vec2(435/1536, 506/1210)} --1st gauge
     display.image{image ="MFD.png",pos = vec2(sideOffset+310,235),size=vec2(90,70),color = rgbm(1,1,1,1), uvStart = vec2(1416/1536,450/1210),uvEnd = vec2(1530/1536, 542/1210)} -- torque icon
     
-    display.text{width=205,pos = vec2(sideOffset+245, 318),alignment=1, letter = vec2(65, 50), spacing = -25,text= math.floor(maxFTorquePercentage), font = "Microsquare", color= rgbm(0,0,0,1)}
-    display.text{width=205,pos = vec2(sideOffset+242, 315),alignment=1, letter = vec2(65, 50), spacing = -25,text= math.floor(maxFTorquePercentage), font = "Microsquare", color= rgbm(1,1,1,1)}
+    display.text{width=205,pos = vec2(sideOffset+245, 318),alignment=1, letter = vec2(65, 50), spacing = -25,text= math.floor(maxFTorquePercentage/6), font = "Microsquare", color= rgbm(0,0,0,1)}
+    display.text{width=205,pos = vec2(sideOffset+242, 315),alignment=1, letter = vec2(65, 50), spacing = -25,text= math.floor(maxFTorquePercentage/6), font = "Microsquare", color= rgbm(1,1,1,1)}
     
     display.text{pos = vec2(sideOffset+250, 385), letter = vec2(50,45), spacing = -20,text="0", font = "Microsquare", color= rgbm(1,1,1,1)}
     display.text{pos = vec2(sideOffset+155, 355), letter = vec2(50,45), spacing = -20,text="2", font = "Microsquare", color= rgbm(1,1,1,1)}
@@ -892,7 +892,7 @@ end
 local torqueVals = fillTable(399)
 setInterval(function()
    
-    torqueVals[1].y = math.max(0,399-(0.324*math.abs(car.drivetrainTorque)))
+    torqueVals[1].y = math.max(0,399-(0.399*math.abs(car.drivetrainTorque)))
     for i = 1, 298,2 do
         torqueVals[i+1].y=torqueVals[i].y
         if i==1 then
@@ -1199,8 +1199,7 @@ function drawGraph()
     if currentActive == "BOOST" then
         drawTurboGauge(rightPivot,rightPos,rightOffset)
         drawTurboGraph()
-
-      elseif currentActive == "F-TORQUE" then
+    elseif currentActive == "F-TORQUE" then
         drawFTorqueGauge(rightPivot,rightPos,rightOffset)
         drawFTorqueGraph()
     elseif currentActive == "THROTTLE" then
@@ -1664,6 +1663,169 @@ function drawDisplayMenu()
     
 end
 
+local twinSelection= {{1,0},{0,0},{0,0}}
+local currentTwin = {{"TURBO","OILT"},{"NONE","NONE"},{"NONE","NONE"},{"NONE","NONE"}}
+local twinCoords = {{vec2(197,140),vec2(330,140)}, {vec2(197,300),vec2(330,300)}, {vec2(597,140),vec2(730,140)}, {vec2(597,300),vec2(730,300)}}
+
+function drawTwinIcons()
+    for i=1,4 do
+        for j=1,2 do
+            if currentTwin[i][j] == "TURBO" then
+                display.image{image ="MFD.png",pos = twinCoords[i][j],size = vec2(80,70),color = rgbm(1,1,1,1), uvStart = vec2(1416/1536,282/1210),uvEnd = vec2(1530/1536, 374/1210)} --turbo icon
+            elseif currentTwin[i][j] == "OILT" then
+                display.image{image ="MFD.png",pos = twinCoords[i][j],size = vec2(80,70),color = rgbm(1,1,1,1), uvStart = vec2(1410/1536,375/1210),uvEnd = vec2(1520/1536, 465/1210)} -- oil icon
+            elseif currentTwin[i][j] == "THROTTLE" then
+                display.image{image ="MFD.png",pos = twinCoords[i][j],size = vec2(80,70),color = rgbm(1,1,1,1), uvStart = vec2(1416/1536,655/1210),uvEnd = vec2(1530/1536, 750/1210)} -- throttle icon
+            elseif currentTwin[i][j] == "IDC" then
+                display.image{image ="MFD.png",pos = twinCoords[i][j],size = vec2(80,70),color = rgbm(1,1,1,1), uvStart = vec2(1416/1536,750/1210),uvEnd = vec2(1530/1536, 842/1210)} -- injector icon
+            elseif currentTwin[i][j] == "VOLT" then
+                display.image{image ="MFD.png",pos = twinCoords[i][j],size = vec2(80,70),color = rgbm(1,1,1,1), uvStart = vec2(1425/1536,560/1210),uvEnd = vec2(1535/1536, 645/1210)} -- volt icon
+            elseif currentTwin[i][j] == "TORQUE" then
+                display.image{image ="MFD.png",pos = twinCoords[i][j],size = vec2(80,70),color = rgbm(1,1,1,1), uvStart = vec2(1410/1536,460/1210),uvEnd = vec2(1525/1536, 550/1210)} -- torque icon
+            end
+        end
+    end
+end
+
+function drawTwinSetupMenu()
+
+    local buttonText = {{"BOOST","OIL-TEMP"},{"F-TORQUE","VOLT"},{"INJECTOR","THROTTLE"}}
+
+    for i=1,5 do
+        display.image{image ="MFD.png",pos = vec2(660,-30+80*i),size = vec2(250,85),color = rgbm(1,1,1,1), uvStart = vec2(985/1536,76/1210),uvEnd = vec2(1144/1536, 146/1210)}
+        if i > 1 then
+            display.text{pos = vec2(682,-13+80*i), letter = vec2(50,45), spacing = -17,text="TWIN", font = "Microsquare", color= rgbm(0,0,0,1)}
+            display.text{pos = vec2(837,-13+80*i), letter = vec2(50,45), spacing = -12,text=i-1, font = "Microsquare", color= rgbm(0,0,0,1)}
+            display.text{pos = vec2(680,-15+80*i), letter = vec2(50,45), spacing = -17,text="TWIN", font = "Microsquare", color= rgbm(1,1,1,1)}
+            display.text{pos = vec2(835,-15+80*i), letter = vec2(50,45), spacing = -12,text=i-1, font = "Microsquare", color= rgbm(1,1,1,1)}
+        else
+            display.text{pos = vec2(727,-13+80*i), letter = vec2(50,45), spacing = -17,text="END", font = "Microsquare", color= rgbm(0,0,0,1)}
+            display.text{pos = vec2(725,-15+80*i), letter = vec2(50,45), spacing = -17,text="END", font = "Microsquare", color= rgbm(1,1,1,1)}
+        end
+    end
+
+    display.text{pos = vec2(180, 85), letter = vec2(51,40), spacing = -22,text="LEFT", font = "Microsquare", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(490, 85), letter = vec2(51,40), spacing = -22,text="RIGHT", font = "Microsquare", color= rgbm(1,1,1,1)}
+
+    for i=1,3 do
+        for j=1,2 do
+            ui.drawRect(vec2(55+(320*(j-1)),40),vec2(165+(320*(j-1)),120),rgbm(1,1,1,1),0,15,3)
+            display.image{image ="MFD.png",pos = vec2(20+320*(j-1),-30+80*(i+1)),size = vec2(315,85),color = rgbm(0.85,0.60,0.50,0.75), uvStart = vec2(985/1536,76/1210),uvEnd = vec2(1144/1536, 146/1210)}
+            display.text{pos = vec2(47+315*(j-1),-13+80*(i+1)), letter = vec2(50,45), spacing = -17,text=buttonText[i][j], font = "Microsquare", color= rgbm(0,0,0,1)} 
+            display.text{pos = vec2(45+315*(j-1),-15+80*(i+1)), letter = vec2(50,45), spacing = -17,text=buttonText[i][j], font = "Microsquare", color= rgbm(1,1,1,1)}
+        end
+    end
+
+end
+
+function drawTwinMenu()
+    
+    display.text{pos = vec2(40, 5), letter = vec2(65,45), spacing = -32,text="SELECT", font = "Microsquare", color= rgbm(1,1,1,1)}
+
+    if btnDown() or btnUp() or btnRight() or btnLeft() then    
+        for j=1,3 do
+            for i=1,2 do  
+                if twinSelection[j][i] == 1 then
+                    if btnDown() then
+                        if j == 3 then
+                           twinSelection[j-2][i] = 1
+                        else
+                           twinSelection[j+1][i] = 1
+                        end
+                          
+                    elseif btnUp() then
+                        if j == 1 then
+                           twinSelection[3][i] = 1
+                        else
+                           twinSelection[j-1][i] = 1
+                        end
+                          
+                    elseif btnRight() then
+                        if i == 2 then
+                           twinSelection[j][1] = 1
+                        else
+                           twinSelection[j][i+1] = 1
+                        end
+                          
+                    elseif btnLeft() then
+                        if i == 1 then
+                           twinSelection[j][2] = 1
+                        else
+                           twinSelection[j][i-1] = 1
+                        end
+                               
+                    end
+                    twinSelection[j][i] = 0
+                    goto continue
+                end
+            end
+        end
+    end
+
+    ::continue::
+    
+    for i=1,2 do
+        for j=1,3 do
+            if twinSelection[3][i] == 1 then
+                ui.drawRect(vec2(152,404),vec2(450,479),rgbm(1,1,0,1),6,15,15)
+            elseif twinSelection[j][i] == 1 then
+                ui.drawRect(vec2(150+400*(i-1),110+160*(j-1)),vec2(450+400*(i-1),230+160*(j-1)),rgbm(1,1,0,1),6,15,15)
+            end
+        end
+    end
+
+    drawTwinIcons()
+
+    if btnMid() then
+        for i=1,2 do
+            for j=1,3 do
+                if twinSelection[3][i] == 1 then
+                    isTwinSetupOpen = true
+                elseif twinSelection[j][i] == 1 then
+                    --FIGURE OUT HOW TO DISPLAY THEM, distance from the create button
+                end
+            end
+        end
+        
+    end
+
+    --display.text{pos = vec2(55+(220*0),50+(0*215)), letter = vec2(55,40), spacing = -27,text="BOOST", font = "Microsquare", color= rgbm(1,1,1,1)}
+    --display.text{pos = vec2(40+(220*1),50+(0*215)), letter = vec2(50,40), spacing = -27,text="OIL-TEMP", font = "Microsquare", color= rgbm(1,1,1,1)}
+    --display.text{pos = vec2(35+(220*2),50+(0*215)), letter = vec2(50,40), spacing = -27,text="F-TORQUE", font = "Microsquare", color= rgbm(1,1,1,1)}
+    --display.text{pos = vec2(70+(220*3),50+(0*215)), letter = vec2(55,40), spacing = -27,text="VOLT", font = "Microsquare", color= rgbm(1,1,1,1)}
+    --display.text{pos = vec2(30+(220*0),50+(1*215)), letter = vec2(50,40), spacing = -27,text="THROTTLE", font = "Microsquare", color= rgbm(1,1,1,1)}
+    --display.text{pos = vec2(30+(220*1),50+(1*215)), letter = vec2(50,40), spacing = -27,text="INJECTOR", font = "Microsquare", color= rgbm(1,1,1,1)}
+    --display.text{pos = vec2(35+(220*2),50+(1*215)), letter = vec2(50,40), spacing = -27,text="EXH-TEMP", font = "Microsquare", color= rgbm(1,1,1,1)}
+    --display.text{pos = vec2(30+(220*3),50+(1*215)), letter = vec2(50,40), spacing = -27,text="INT-TEMP", font = "Microsquare", color= rgbm(1,1,1,1)}
+
+    display.text{pos = vec2(150,70), letter = vec2(50,45), spacing = -12,text="TWIN", font = "Microsquare", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(150,230), letter = vec2(50,45), spacing = -12,text="TWIN", font = "Microsquare", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(550,70), letter = vec2(50,45), spacing = -12,text="TWIN", font = "Microsquare", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(550,230), letter = vec2(50,45), spacing = -12,text="TWIN", font = "Microsquare", color= rgbm(1,1,1,1)}
+
+    display.text{pos = vec2(325,70), letter = vec2(50,45), spacing = -12,text="1", font = "Microsquare", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(325,230), letter = vec2(50,45), spacing = -12,text="2", font = "Microsquare", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(725,70), letter = vec2(50,45), spacing = -12,text="3", font = "Microsquare", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(725,230), letter = vec2(50,45), spacing = -12,text="4", font = "Microsquare", color= rgbm(1,1,1,1)}
+
+    display.image{image ="MFD.png",pos = vec2(150,110),size = vec2(300,120),color = rgbm(1,1,1,1), uvStart = vec2(1153/1536,1024/1210),uvEnd = vec2(1536/1536, 1210/1210)}
+    display.image{image ="MFD.png",pos = vec2(150,270),size = vec2(300,120),color = rgbm(1,1,1,1), uvStart = vec2(1153/1536,1024/1210),uvEnd = vec2(1536/1536, 1210/1210)}
+    display.image{image ="MFD.png",pos = vec2(550,110),size = vec2(300,120),color = rgbm(1,1,1,1), uvStart = vec2(1153/1536,1024/1210),uvEnd = vec2(1536/1536, 1210/1210)}
+    display.image{image ="MFD.png",pos = vec2(550,270),size = vec2(300,120),color = rgbm(1,1,1,1), uvStart = vec2(1153/1536,1024/1210),uvEnd = vec2(1536/1536, 1210/1210)}
+
+    display.image{image ="MFD.png",pos = vec2(139,400),size = vec2(314,85),color = rgbm(1,1,1,1), uvStart = vec2(985/1536,76/1210),uvEnd = vec2(1144/1536, 146/1210)}
+
+    --display.image{image ="MFD.png",pos = vec2(100,150),size = vec2(85,70),color = rgbm(1,1,1,1), uvStart = vec2(1416/1536,282/1210),uvEnd = vec2(1530/1536, 374/1210)} --turbo icon
+    --display.image{image ="MFD.png",pos = vec2(320,145),size = vec2(85,70),color = rgbm(1,1,1,1), uvStart = vec2(1416/1536,370/1210),uvEnd = vec2(1530/1536, 462/1210)} -- oil icon
+    --display.image{image ="MFD.png",pos = vec2(538,140),size=vec2(85,70),color = rgbm(1,1,1,1), uvStart = vec2(1416/1536,450/1210),uvEnd = vec2(1530/1536, 542/1210)} -- torque icon
+    --display.image{image ="MFD.png",pos = vec2(753,142),size=vec2(90,70),color = rgbm(1,1,1,1), uvStart = vec2(1416/1536,550/1210),uvEnd = vec2(1530/1536, 642/1210)} -- battery icon
+    --display.image{image ="MFD.png",pos = vec2(95,360),size = vec2(85,70),color = rgbm(1,1,1,1), uvStart = vec2(1416/1536,650/1210),uvEnd = vec2(1530/1536, 742/1210)} -- throttle icon
+    --display.image{image ="MFD.png",pos = vec2(316,360),size = vec2(85,70),color = rgbm(1,1,1,1), uvStart = vec2(1416/1536,750/1210),uvEnd = vec2(1530/1536, 842/1210)} -- injector icon
+    --display.image{image ="MFD.png",pos = vec2(540,365),size = vec2(85,70),color = rgbm(1,1,1,1), uvStart = vec2(1416/1536,850/1210),uvEnd = vec2(1530/1536, 940/1210)} -- exhaust icon
+    --display.image{image ="MFD.png",pos = vec2(752,355),size = vec2(85,70),color = rgbm(1,1,1,1), uvStart = vec2(1416/1536,932/1210),uvEnd = vec2(1530/1536, 1024/1210)} -- int icon
+    
+end
+
 function modeBehaviour()
     if btnMode() and not isMenuActive then --only changing mode if the menu isn't opened
         modeNumber = modeNumber+1
@@ -1692,7 +1854,7 @@ function modeBehaviour()
         if isMenuActive then
             drawMenuMode()
         elseif isSelectActive then
-            drawSelectMenu()
+            drawTwinMenu()
         elseif isShiftActive then
             drawShiftMenu()
         elseif isRedActive then
@@ -1782,7 +1944,9 @@ function update(dt)
     --drawIntGraph()
 
     --drawMenuMode(true)
-    --shiftLightBehaviour()
+    --drawTwinMenu()
+    --drawTwinSetupMenu()
+    shiftLightBehaviour()
     modeBehaviour()
     detectSwitchover()
     if btnDisp() then --hacky but easier to do this since it always opens on top of every menu
