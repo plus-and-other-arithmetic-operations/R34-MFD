@@ -25,6 +25,7 @@ Stuff that needs to be added to complete the base implementation of the MFD
 - [x] Add resetting max values on bar menu when middle joystick button pressed
 - [ ] TWIN menu
 - [ ] Implement display menu
+- [ ] Add start animation
 
 # Gauges
 Stuff that needs to be fixed to finalize the gauge implementation
