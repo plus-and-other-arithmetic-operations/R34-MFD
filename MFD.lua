@@ -1949,56 +1949,72 @@ function detectSwitchover()
 end
 
 
+local booted = false
+local bootup = ui.MediaPlayer()
+bootup:setSource('bootup.mp4'):setAutoPlay(true)
+
 function update(dt)
+
     display.rect{pos= vec2(0,0), size= vec2(940,490), color= rgbm(0,0.01,0.09,1)}
-    
-    --drawTurboGauge(rightPivot,rightPos,rightOffset)
-    --drawTurboGraph()
-    
-    --drawThrottleGauge(leftPivot,leftPos,leftOffset)
-    --drawThrottleGraph()
+    if not bootup:ended() or bootup:ended() and car.gas < 0.1 and not booted then
+        ui.drawImage(bootup, vec2(-10,0), vec2(1000, 512)) --lazy way of stretching the background
+        ui.drawImage(bootup, vec2(100,0), vec2(900, 512))
+    else
+        booted = true
+    end
 
-    --drawInjectorGauge(rightPivot,rightPos,rightOffset)
-    --drawIDCGraph()
+    if booted then
+        --bootup:pause():setCurrentTime(0)
+        --drawTurboGauge(rightPivot,rightPos,rightOffset)
+        --drawTurboGraph()
+        
+        --drawThrottleGauge(leftPivot,leftPos,leftOffset)
+        --drawThrottleGraph()
 
-    --drawVoltGauge(rightPivot,rightPos, rightOffset)
-    --drawVoltGraph()
+        --drawInjectorGauge(rightPivot,rightPos,rightOffset)
+        --drawIDCGraph()
 
-    --drawOilTempGauge(rightPivot,rightPos, rightOffset)
-    --drawOilTempGraph()
+        --drawVoltGauge(rightPivot,rightPos, rightOffset)
+        --drawVoltGraph()
+
+        --drawOilTempGauge(rightPivot,rightPos, rightOffset)
+        --drawOilTempGraph()
 
 
-    --drawFTorqueGauge(rightPivot,rightPos,rightOffset)
-    --drawFTorqueGraph()
+        --drawFTorqueGauge(rightPivot,rightPos,rightOffset)
+        --drawFTorqueGraph()
 
-    --drawExhGauge(rightPivot,rightPos,rightOffset)
-    --drawExhGraph()
+        --drawExhGauge(rightPivot,rightPos,rightOffset)
+        --drawExhGraph()
 
-    --drawIntGauge(leftPivot,leftPos,leftOffset)
-    --drawIntGraph()
+        --drawIntGauge(leftPivot,leftPos,leftOffset)
+        --drawIntGraph()
 
-    --drawMenuMode(true)
-    --drawTwinMenu()
-    --drawTwinSetupMenu()
+        --drawMenuMode(true)
+        --drawTwinMenu()
+        --drawTwinSetupMenu()
 
-    drawDisplayMenu()
+        --drawDisplayMenu()
 
-    --shiftLightBehaviour()
-    --modeBehaviour()
-    --detectSwitchover()
-    --if btnDisp() then --hacky but easier to do this since it always opens on top of every menu
-    --    isDisplayActive = not isDisplayActive
-    --end
-    --if isDisplayActive then
-    --    drawDisplayMenu()
-    --end
+        shiftLightBehaviour()
+        modeBehaviour()
+        detectSwitchover()
+        if btnDisp() then --hacky but easier to do this since it always opens on top of every menu
+            isDisplayActive = not isDisplayActive
+        end
+        if isDisplayActive then
+            drawDisplayMenu()
+        end
 
-    --dim
-    --display.rect{pos= vec2(0,0), size= vec2(940,490), color= rgbm(0,0.01,0.09,1)}
+        --dim
+        --display.rect{pos= vec2(0,0), size= vec2(940,490), color= rgbm(0,0.01,0.09,1)}
 
-    --drawRedMenu()
-    --drawShiftMenu()
-    --drawSelectMenu()
-    --drawBarMenu()
-
+        --drawRedMenu()
+        --drawShiftMenu()
+        --drawSelectMenu()
+        --drawBarMenu()
+    end
 end
+
+
+  
