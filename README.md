@@ -27,6 +27,7 @@ Stuff that needs to be added to complete the base implementation of the MFD
 - [ ] Implement display menu
 - [ ] Add start animation
 - [ ] Store saved settings in a way that it persists between sessions 
+- [ ] Add dimming (draw opaque rectangle over)
 
 # Gauges
 Stuff that needs to be fixed to finalize the gauge implementation
@@ -54,7 +55,7 @@ Stuff that needs to be fixed to finalize the visuals
 
 # Accuracy (making it true to IRL)
 Stuff that needs to make the MFD true to its real life counterpart
-- [ ] Check outline selection thickness
+- [x] Check outline selection thickness
 - [x] Check if memory in selected menus is needed or not (It isn't)
 - [x] Correct circular gauge behaviour and layering
 - [ ] Find accurate text font
