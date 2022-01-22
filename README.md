@@ -25,9 +25,10 @@ Stuff that needs to be added to complete the base implementation of the MFD
 - [x] Add resetting max values on bar menu when middle joystick button pressed
 - [ ] TWIN menu
 - [ ] Implement display menu
-- [ ] Add start animation
+- [x] Add start animation
 - [ ] Store saved settings in a way that it persists between sessions 
 - [ ] Add dimming (draw opaque rectangle over)
+- [ ] 
 
 # Gauges
 Stuff that needs to be fixed to finalize the gauge implementation
@@ -47,6 +48,9 @@ Stuff that needs to be fixed to finalize the gauge implementation
 Stuff that needs to be fixed to finalize the graph implementation
 - [x] Make intercooler temperature/exhaust temperature graphs
 - [x] Code hard limit in boost & other graphs if necessary math.min(314,...)
+- [ ] Graph dropping off at the edge
+- [ ] Turbo reading is off
+
 
 # Textures
 Stuff that needs to be fixed to finalize the visuals
