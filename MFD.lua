@@ -1609,6 +1609,10 @@ function drawRedMenu()
 end
 
 local activeDisplay = {true,false,false,false}
+local autoDimming = false
+local gaugeTail = false
+local brightnessAdjustment = false
+
 function drawDisplayMenu()
     display.rect{pos= vec2(600,0), size= vec2(940,490), color= rgbm(0,0.01,0.09,1)}
     display.rect{pos= vec2(0,0), size= vec2(350,100), color= rgbm(0,0.01,0.09,1)}
@@ -1633,16 +1637,16 @@ function drawDisplayMenu()
                         end
                     elseif btnMid() then
                         if i == 1 then
-                            --autodimming
+                            autoDimming = not autoDimming
                             goto continue
                         elseif i==2 then
                             --turn off screen
                             goto continue
                         elseif i==3 then
-                            --gauge tail toggle
+                            gaugeTail = not gaugeTail
                             goto continue
                         elseif i==4 then
-                            --brightness menu
+                            brightnessAdjustment = not brightnessAdjustment
                             goto continue
                         end
                     end
@@ -1660,7 +1664,37 @@ function drawDisplayMenu()
         end
         display.image{image ="MFD.png",pos = vec2(620,100+90*i),size = vec2(290,85),color = rgbm(1,1,1,1), uvStart = vec2(985/1536,76/1210),uvEnd = vec2(1144/1536, 146/1210)}
     end
+
+
+
+    if autoDimming then
+        display.image{image ="MFD.png",pos = vec2(615,116),size = vec2(340,45),color = rgbm(1,1,1,1), uvStart = vec2(0/1536,1101/1210),uvEnd = vec2(233/1536, 1141/1210)}
+    else
+        display.image{image ="MFD.png",pos = vec2(615,106),size = vec2(340,55),color = rgbm(1,1,1,1), uvStart = vec2(0/1536,1050/1210),uvEnd = vec2(233/1536, 1099/1210)}
+
+    end
+
+    display.image{image ="MFD.png",pos = vec2(673,202),size = vec2(200,55),color = rgbm(1,1,1,1), uvStart = vec2(230/1536,1080/1210),uvEnd = vec2(347/1536, 1125/1210)}
     
+    if gaugeTail then
+        display.image{image ="MFD.png",pos = vec2(643,298.7),size = vec2(245,46),color = rgbm(1,1,1,1), uvStart = vec2(230/1536,1127/1210),uvEnd = vec2(380/1536, 1169/1210)}
+    else
+        display.image{image ="MFD.png",pos = vec2(643,297.7),size = vec2(245,47),color = rgbm(1,1,1,1), uvStart = vec2(230/1536,1167/1210),uvEnd = vec2(380/1536, 1210/1210)}
+    end
+
+    display.image{image ="MFD.png",pos = vec2(646,383),size = vec2(290,55),color = rgbm(1,1,1,1), uvStart = vec2(0/1536,1150/1210),uvEnd = vec2(233/1536, 1200/1210)}
+
+    local basecoordx = 220
+    local basecoordy = 379
+    local basesizey = 67
+    local basesize = 200
+
+    if brightnessAdjustment then
+        display.rect{pos= vec2(basecoordx,basecoordy), size= vec2(basesize*2,basesizey), color= rgbm(0.8,0.8,0.8,1)}
+        display.rect{pos= vec2(basecoordx+3,basecoordy+3), size= vec2((basesize*2)-6,basesizey-6), color= rgbm(0,0.01,0.09,1)}  
+        display.rect{pos= vec2(basecoordx+95,basecoordy), size= vec2(basesize+15,basesizey), color= rgbm(0.8,0.8,0.8,1)}
+        display.rect{pos= vec2(basecoordx+98,basecoordy+3), size= vec2((basesize+15)-6,basesizey-6), color= rgbm(0,0.01,0.09,1)}
+    end
 end
 
 local twinSelection= {{1,0},{0,0},{0,0}}
@@ -1946,16 +1980,21 @@ function update(dt)
     --drawMenuMode(true)
     --drawTwinMenu()
     --drawTwinSetupMenu()
-    shiftLightBehaviour()
-    modeBehaviour()
-    detectSwitchover()
-    if btnDisp() then --hacky but easier to do this since it always opens on top of every menu
-        isDisplayActive = not isDisplayActive
-    end
-    if isDisplayActive then
-        drawDisplayMenu()
-    end
 
+    drawDisplayMenu()
+
+    --shiftLightBehaviour()
+    --modeBehaviour()
+    --detectSwitchover()
+    --if btnDisp() then --hacky but easier to do this since it always opens on top of every menu
+    --    isDisplayActive = not isDisplayActive
+    --end
+    --if isDisplayActive then
+    --    drawDisplayMenu()
+    --end
+
+    --dim
+    --display.rect{pos= vec2(0,0), size= vec2(940,490), color= rgbm(0,0.01,0.09,1)}
 
     --drawRedMenu()
     --drawShiftMenu()
