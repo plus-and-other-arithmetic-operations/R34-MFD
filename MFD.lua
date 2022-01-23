@@ -180,6 +180,8 @@ local maxExhPercentage = 0
 local maxTempPercentage = 0
 local mfdSize= vec2(324,380)
 
+local gaugeTail = true
+
 function drawIntGauge(sidePivot, sidePos,sideOffset)
     local tempPercentage = math.min(100, car.exhaustTemperature/10)
     maxTempPercentage = math.max(maxTempPercentage,tempPercentage)
@@ -193,12 +195,14 @@ function drawIntGauge(sidePivot, sidePos,sideOffset)
         local thisRotation = (-tempPercentage) * 2.65 -- "-" turns rotation counter clockwise
         ui.beginRotation()
         ui.beginRotation()
-        display.rect {
-            -- draws rectangle
-            pos = sidePos,
-            size = vec2(21, 120),
-            color = rgbm(0,1,0,1)
-        }
+        if gaugeTail then
+            display.rect {
+                -- draws rectangle
+                pos = sidePos,
+                size = vec2(21, 120),
+                color = rgbm(0,1,0,1)
+            }
+        end
         if i==80 then
             display.rect {
                 -- draws rectangle
@@ -260,12 +264,14 @@ function drawExhGauge(sidePivot, sidePos, sideOffset)
         local thisRotation = (-exhPercentage) * 2.65 -- "-" turns rotation counter clockwise
         ui.beginRotation()
         ui.beginRotation()
-        display.rect {
-            -- draws rectangle
-            pos = sidePos,
-            size = vec2(21, 120),
-            color = getBarColor(car.exhaustTemperature,tresholdValues["exhT"])
-        }
+        if gaugeTail then
+            display.rect {
+                -- draws rectangle
+                pos = sidePos,
+                size = vec2(21, 120),
+                color = getBarColor(car.exhaustTemperature,tresholdValues["exhT"])
+            }
+        end
         if i==80 then
             display.rect {
                 -- draws rectangle
@@ -326,7 +332,9 @@ function drawVoltGauge(sidePivot, sidePos, sideOffset)
         local thisRotation = (-voltPercentage) * 2.3 -- "-" turns rotation counter clockwise
         ui.beginRotation()
         ui.beginRotation()
-        display.rect {pos = sidePos,size = vec2(16, 120),color = rgbm(0,1,0,1)}
+        if gaugeTail then
+            display.rect {pos = sidePos,size = vec2(16, 120),color = rgbm(0,1,0,1)}
+        end
         if i==40 then
             display.rect {pos = sidePos,size = vec2(7, 120),color = rgbm(1,0,0,1)}
         end
@@ -380,7 +388,9 @@ function drawFTorqueGauge(sidePivot, sidePos,sideOffset)
         local thisRotation = (-torquePercentage) * 2.5 -- "-" turns rotation counter clockwise
         ui.beginRotation()
         ui.beginRotation()
-        display.rect {pos = sidePos,size = vec2(21, 120),color = rgbm(0,1,0,1)}
+        if gaugeTail then
+            display.rect {pos = sidePos,size = vec2(21, 120),color = rgbm(0,1,0,1)}
+        end
         if i==80 then
             display.rect {pos = sidePos,size = vec2(7, 120),color = rgbm(1,0,0,1)}
         end
@@ -429,12 +439,14 @@ function drawThrottleGauge(sidePivot, sidePos, sideOffset)
         local thisRotation = (-throttlePercentage) * 2.25 -- "-" turns rotation counter clockwise
         ui.beginRotation()
         ui.beginRotation()
-        display.rect {
-            -- draws rectangle
-            pos = sidePos,
-            size = vec2(21, 120),
-            color = rgbm(0,1,0,1)
-        }
+        if gaugeTail then
+            display.rect {
+                -- draws rectangle
+                pos = sidePos,
+                size = vec2(21, 120),
+                color = rgbm(0,1,0,1)
+            }
+        end
         if i==80 then
             display.rect {
                 -- draws rectangle
@@ -475,7 +487,9 @@ function drawInjectorGauge(sidePivot, sidePos, sideOffset)
         
         ui.beginRotation()
         ui.beginRotation()
-        display.rect {pos = sidePos,size = vec2(20, 120),color = getBarColor(idcLevel(car.rpm),tresholdValues["injector"])}
+        if gaugeTail then
+            display.rect {pos = sidePos,size = vec2(20, 120),color = getBarColor(idcLevel(car.rpm),tresholdValues["injector"])}
+        end
         if i==80 then
             display.rect {pos = sidePos,size = vec2(7, 120),color = rgbm(1,0,0,1)}
         end
@@ -521,13 +535,14 @@ function drawTurboGauge(sidePivot, sidePos, sideOffset)
         ui.beginRotation()
         ui.beginRotation()
 
-        
-        display.rect {
-            -- draws rectangle
-            pos = sidePos,
-            size = vec2(20, 120),
-            color = getBarColor(2*math.floor(car.turboBoost*100)/100-0.3, tresholdValues["boost"])
-        }
+        if gaugeTail then
+            display.rect {
+                -- draws rectangle
+                pos = sidePos,
+                size = vec2(20, 120),
+                color = getBarColor(2*math.floor(car.turboBoost*100)/100-0.3, tresholdValues["boost"])
+            }
+        end
         if i==40 then
             display.rect {
                 -- draws rectangle
@@ -607,12 +622,14 @@ function drawOilTempGauge(sidePivot, sidePos, sideOffset)
         local thisRotation = (-oilPercentage) * 2.3 -- "-" turns rotation counter clockwise
         ui.beginRotation()
         ui.beginRotation()
-        display.rect {
-            -- draws rectangle
-            pos = sidePos,
-            size = vec2(21, 120),
-            color = getBarColor(car.oilTemperature,tresholdValues["oilT"])
-        }
+        if gaugeTail then
+            display.rect {
+                -- draws rectangle
+                pos = sidePos,
+                size = vec2(21, 120),
+                color = getBarColor(car.oilTemperature,tresholdValues["oilT"])
+            }
+        end
         if i==80 then
             display.rect {pos = sidePos,size = vec2(7, 120),color = rgbm(1,0,0,1)}
         end
@@ -1610,8 +1627,10 @@ end
 
 local activeDisplay = {true,false,false,false}
 local autoDimming = false
-local gaugeTail = false
 local brightnessAdjustment = false
+local isScreenOn = true
+local screenBrightness = 0.5
+
 
 function drawDisplayMenu()
     display.rect{pos= vec2(600,0), size= vec2(940,490), color= rgbm(0,0.01,0.09,1)}
@@ -1640,7 +1659,7 @@ function drawDisplayMenu()
                             autoDimming = not autoDimming
                             goto continue
                         elseif i==2 then
-                            --turn off screen
+                            isScreenOn = not isScreenOn
                             goto continue
                         elseif i==3 then
                             gaugeTail = not gaugeTail
@@ -1674,7 +1693,7 @@ function drawDisplayMenu()
 
     end
 
-    display.image{image ="MFD.png",pos = vec2(673,202),size = vec2(200,55),color = rgbm(1,1,1,1), uvStart = vec2(230/1536,1080/1210),uvEnd = vec2(347/1536, 1125/1210)}
+    display.image{image ="MFD.png",pos = vec2(678,204),size = vec2(200,55),color = rgbm(1,1,1,1), uvStart = vec2(230/1536,1086/1210),uvEnd = vec2(355/1536, 1125/1210)}
     
     if gaugeTail then
         display.image{image ="MFD.png",pos = vec2(643,298.7),size = vec2(245,46),color = rgbm(1,1,1,1), uvStart = vec2(230/1536,1127/1210),uvEnd = vec2(380/1536, 1169/1210)}
@@ -1694,6 +1713,20 @@ function drawDisplayMenu()
         display.rect{pos= vec2(basecoordx+3,basecoordy+3), size= vec2((basesize*2)-6,basesizey-6), color= rgbm(0,0.01,0.09,1)}  
         display.rect{pos= vec2(basecoordx+95,basecoordy), size= vec2(basesize+15,basesizey), color= rgbm(0.8,0.8,0.8,1)}
         display.rect{pos= vec2(basecoordx+98,basecoordy+3), size= vec2((basesize+15)-6,basesizey-6), color= rgbm(0,0.01,0.09,1)}
+
+
+        if (btnLeft() or btnRight()) and not autoDimming then    
+                    if btnRight() and screenBrightness < 0.5 then
+                        screenBrightness = screenBrightness + 0.1
+                    elseif btnLeft() and screenBrightness > 0.1 then
+                        screenBrightness = screenBrightness - 0.1
+                    end
+        end
+
+        local brightnessRect = screenBrightness * (basesize+214)
+        ui.drawRectFilled(vec2(basecoordx+97+brightnessRect,basecoordy+3),vec2(basecoordx+97+brightnessRect+3,basecoordy+basesizey-3),rgbm(0,1,0,1))
+        display.image{image ="MFD.png",pos = vec2(226,362),size = vec2(80,80),color = rgbm(1,1,1,1), uvStart = vec2(230/1536,1036/1210),uvEnd = vec2(265/1536, 1085/1210)}
+        display.image{image ="MFD.png",pos = vec2(538,362),size = vec2(80,80),color = rgbm(1,1,1,1), uvStart = vec2(290/1536,1036/1210),uvEnd = vec2(325/1536, 1085/1210)}
     end
 end
 
@@ -1948,71 +1981,88 @@ function detectSwitchover()
     end
 end
 
+function autoDimBehaviour()
+    
+    if autoDimming then
+        display.rect{pos= vec2(0,0), size= vec2(940,490), color= rgbm(0,0.01,0.09,math.min(sim.timeHours/24,0.65))}
+        
+    elseif brightnessAdjustment then
+        display.rect{pos= vec2(0,0), size= vec2(940,490), color= rgbm(0,0.01,0.09,0.5-screenBrightness)}
+    end
 
-local booted = false
+
+end
+
+local booted = true
 local bootup = ui.MediaPlayer()
 bootup:setSource('bootup.mp4'):setAutoPlay(true)
 
 function update(dt)
-
-    display.rect{pos= vec2(0,0), size= vec2(940,490), color= rgbm(0,0.01,0.09,1)}
-    if not bootup:ended() or bootup:ended() and car.gas < 0.1 and not booted then
-        ui.drawImage(bootup, vec2(-10,0), vec2(1000, 512)) --lazy way of stretching the background
-        ui.drawImage(bootup, vec2(100,0), vec2(900, 512))
+    if not isScreenOn then
+        display.rect{pos= vec2(0,0), size= vec2(940,490), color= rgbm(0,0,0,1)}
+        if btnMid() or btnDisp() then
+            isScreenOn = not isScreenOn
+        end
     else
-        booted = true
-    end
-
-    if booted then
-        --bootup:pause():setCurrentTime(0)
-        --drawTurboGauge(rightPivot,rightPos,rightOffset)
-        --drawTurboGraph()
-        
-        --drawThrottleGauge(leftPivot,leftPos,leftOffset)
-        --drawThrottleGraph()
-
-        --drawInjectorGauge(rightPivot,rightPos,rightOffset)
-        --drawIDCGraph()
-
-        --drawVoltGauge(rightPivot,rightPos, rightOffset)
-        --drawVoltGraph()
-
-        --drawOilTempGauge(rightPivot,rightPos, rightOffset)
-        --drawOilTempGraph()
-
-
-        --drawFTorqueGauge(rightPivot,rightPos,rightOffset)
-        --drawFTorqueGraph()
-
-        --drawExhGauge(rightPivot,rightPos,rightOffset)
-        --drawExhGraph()
-
-        --drawIntGauge(leftPivot,leftPos,leftOffset)
-        --drawIntGraph()
-
-        --drawMenuMode(true)
-        --drawTwinMenu()
-        --drawTwinSetupMenu()
-
-        --drawDisplayMenu()
-
-        shiftLightBehaviour()
-        modeBehaviour()
-        detectSwitchover()
-        if btnDisp() then --hacky but easier to do this since it always opens on top of every menu
-            isDisplayActive = not isDisplayActive
-        end
-        if isDisplayActive then
-            drawDisplayMenu()
+        display.rect{pos= vec2(0,0), size= vec2(940,490), color= rgbm(0,0.01,0.09,1)}
+        if not bootup:ended() or bootup:ended() and car.gas < 0.1 and not booted then
+            ui.drawImage(bootup, vec2(-10,0), vec2(1000, 512)) --lazy way of stretching the background
+            ui.drawImage(bootup, vec2(100,47), vec2(900, 552))
+        else
+            booted = true
         end
 
-        --dim
-        --display.rect{pos= vec2(0,0), size= vec2(940,490), color= rgbm(0,0.01,0.09,1)}
+        if booted then
+            --bootup:pause():setCurrentTime(0)
+            --drawTurboGauge(rightPivot,rightPos,rightOffset)
+            --drawTurboGraph()
+            
+            --drawThrottleGauge(leftPivot,leftPos,leftOffset)
+            --drawThrottleGraph()
 
-        --drawRedMenu()
-        --drawShiftMenu()
-        --drawSelectMenu()
-        --drawBarMenu()
+            --drawInjectorGauge(rightPivot,rightPos,rightOffset)
+            --drawIDCGraph()
+
+            --drawVoltGauge(rightPivot,rightPos, rightOffset)
+            --drawVoltGraph()
+
+            --drawOilTempGauge(rightPivot,rightPos, rightOffset)
+            --drawOilTempGraph()
+
+
+            --drawFTorqueGauge(rightPivot,rightPos,rightOffset)
+            --drawFTorqueGraph()
+
+            --drawExhGauge(rightPivot,rightPos,rightOffset)
+            --drawExhGraph()
+
+            --drawIntGauge(leftPivot,leftPos,leftOffset)
+            --drawIntGraph()
+
+            --drawMenuMode(true)
+            --drawTwinMenu()
+            --drawTwinSetupMenu()
+
+            --drawDisplayMenu()
+
+            shiftLightBehaviour()
+            modeBehaviour()
+            detectSwitchover()
+            if btnDisp() then --hacky but easier to do this since it always opens on top of every menu
+                isDisplayActive = not isDisplayActive
+            end
+            if isDisplayActive then
+                drawDisplayMenu()
+            end
+            autoDimBehaviour()
+            --dim
+            --display.rect{pos= vec2(0,0), size= vec2(940,490), color= rgbm(0,0.01,0.09,1)}
+
+            --drawRedMenu()
+            --drawShiftMenu()
+            --drawSelectMenu()
+            --drawBarMenu()
+        end
     end
 end
 
