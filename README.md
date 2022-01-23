@@ -24,11 +24,11 @@ Stuff that needs to be added to complete the base implementation of the MFD
 - [x] Implement menu switchover when treshold is exceeded
 - [x] Add resetting max values on bar menu when middle joystick button pressed
 - [ ] TWIN menu
-- [ ] Implement display menu
+- [x] Implement display menu
 - [x] Add start animation
 - [ ] Store saved settings in a way that it persists between sessions 
-- [ ] Add dimming (draw opaque rectangle over)
-- [ ] 
+- [x] Add dimming (draw opaque rectangle over)
+
 
 # Gauges
 Stuff that needs to be fixed to finalize the gauge implementation
@@ -40,9 +40,10 @@ Stuff that needs to be fixed to finalize the gauge implementation
 - [x] Tweak circular gauges to make them look less weird on rotation
 - [x] Link shift up selection to emissive (use setExtraX and tweak emissive cfg)
 - [ ] Draw --- text when below certain threshold
-- [ ] Add toggleable gauge tail
+- [x] Add toggleable gauge tail
 - [x] Interior temp gauge missing icon
 - [x] Make gauges flash red when maxxed out
+- [ ] Weird needle on oil temp gauge
 
 # Graph
 Stuff that needs to be fixed to finalize the graph implementation
