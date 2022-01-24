@@ -49,8 +49,8 @@ Stuff that needs to be fixed to finalize the gauge implementation
 Stuff that needs to be fixed to finalize the graph implementation
 - [x] Make intercooler temperature/exhaust temperature graphs
 - [x] Code hard limit in boost & other graphs if necessary math.min(314,...)
-- [ ] Graph dropping off at the edge
-- [ ] Turbo reading is off
+- [x] Graph dropping off at the edge
+- [x] Turbo reading is off
 
 
 # Textures
