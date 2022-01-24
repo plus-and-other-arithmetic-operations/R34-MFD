@@ -706,12 +706,12 @@ function fillTable(yVal)
 end
 
 
-local boostVals = fillTable(390)
+local boostVals = fillTable(332)
 setInterval(function()
 
-    boostVals[1].y = math.max(0,390-(31.5*(math.floor(math.abs(car.turboBoost)*10))))
+    boostVals[1].y = math.max(75,332-(31.5*(math.floor(math.abs(car.turboBoost)*8))))
     
-    for i = 1, 298,2 do
+    for i = 1, 299,2 do
         boostVals[i+1].y=boostVals[i].y
         if i==1 then
             boostVals[i].y=boostVals[#boostVals].y
@@ -726,7 +726,7 @@ end
 
 function drawTurboGraph() 
 
-    local starterBoost = 2
+    local starterBoost = 12
     
     display.rect {pos = vec2(120,50),size = vec2(2, 350),color = rgbm(1,1,1,1)}
     display.rect {pos = vec2(120,400),size = vec2(350, 2),color = rgbm(1,1,1,1)}
@@ -740,15 +740,20 @@ function drawTurboGraph()
     display.text{pos = vec2(200, 425), letter = vec2(40,35), spacing = -17,text="20", font = "Microsquare", color= rgbm(1,1,1,1)}
     display.text{pos = vec2(87, 425), letter = vec2(40,35), spacing = -17,text="30", font = "Microsquare", color= rgbm(1,1,1,1)}
 
-    for i=0, 5 do
-        display.text{width=90,alignment=1,pos = vec2(20,58+(60*i)), letter = vec2(40,35), spacing = -25,text=starterBoost, font = "Microsquare", color= rgbm(1,1,1,1)}
-        starterBoost = starterBoost - 0.5
-        display.rect {pos = vec2(108,73+(60*i)),size = vec2(10, 5),color = rgbm(1,1,1,1)}
+    for i=0, 9 do
+        display.text{width=90,alignment=1,pos = vec2(20,58+(33*i)), letter = vec2(40,35), spacing = -25,text=starterBoost/10, font = "Microsquare", color= rgbm(1,1,1,1)}
+        if starterBoost > 0.2 then
+            starterBoost = starterBoost - 2
+        else
+            starterBoost = starterBoost - 20
+        end
+        display.rect {pos = vec2(108,73+(33*i)),size = vec2(10, 5),color = rgbm(1,1,1,1)}
+ 
     end
 
-    for i = 0, 30 do
-        display.rect {pos = vec2(120,75+(10*i)),size = vec2(350, 2),color = rgbm(1,1,1,0.1)}
-        display.rect {pos = vec2(115,73+(10*i)),size = vec2(4, 4),color = rgbm(1,1,1,1)}
+    for i = 0, 9 do
+        display.rect {pos = vec2(120,75+(33*i)),size = vec2(350, 2),color = rgbm(1,1,1,0.1)}
+        display.rect {pos = vec2(115,90+(33*i)),size = vec2(4, 4),color = rgbm(1,1,1,1)}
     end
  
     for i = 3, 300 do
@@ -762,7 +767,7 @@ end
 local throttleVals = fillTable(399)
 setInterval(function()
     throttleVals[1].y = math.max(0,399-(324*car.gas)) 
-    for i = 1, 298,2 do
+    for i = 1, 299,2 do
         throttleVals[i+1].y=throttleVals[i].y
         if i==1 then
             throttleVals[i].y=throttleVals[#throttleVals].y
@@ -808,7 +813,7 @@ end
 local idcVals = fillTable(399)
 setInterval(function()
     idcVals[1].y = math.max(0,399-(3.24*idcLevel(car.rpm)))   
-    for i = 1, 298,2 do
+    for i = 1, 299,2 do
         idcVals[i+1].y=idcVals[i].y
         if i==1 then
             idcVals[i].y=idcVals[#idcVals].y
@@ -859,7 +864,7 @@ local voltVals = fillTable(399)
 setInterval(function()
    
     voltVals[1].y = math.max(0,399-(3.24*(((car.batteryVoltage-8)*100)/8)))
-    for i = 1, 298,2 do
+    for i = 1, 299,2 do
         voltVals[i+1].y=voltVals[i].y
         if i==1 then
             voltVals[i].y=voltVals[#voltVals].y
@@ -910,7 +915,7 @@ local torqueVals = fillTable(399)
 setInterval(function()
    
     torqueVals[1].y = math.max(0,399-(0.399*math.abs(car.drivetrainTorque)))
-    for i = 1, 298,2 do
+    for i = 1, 299,2 do
         torqueVals[i+1].y=torqueVals[i].y
         if i==1 then
             torqueVals[i].y=torqueVals[#torqueVals].y
@@ -962,7 +967,7 @@ end
 local oilVals = fillTable(399)
 setInterval(function()  
     oilVals[1].y = math.max(0,399-(3.24*13+(((car.oilTemperature-80)*100)/80)))
-    for i = 1, 298,2 do
+    for i = 1, 299,2 do
         oilVals[i+1].y=oilVals[i].y
         if i==1 then
             oilVals[i].y=oilVals[#oilVals].y
@@ -1010,7 +1015,7 @@ end
 local exhVals = fillTable(399)
 setInterval(function()  
     exhVals[1].y = math.max(0,399-0.324*car.exhaustTemperature)
-    for i = 1, 298,2 do
+    for i = 1, 299,2 do
         exhVals[i+1].y=exhVals[i].y
         if i==1 then
             exhVals[i].y=exhVals[#exhVals].y
@@ -1059,7 +1064,7 @@ end
 local intVals = fillTable(399)
 setInterval(function()  
     intVals[1].y = math.max(0,399-3.24*car.exhaustTemperature/10)
-    for i = 1, 298,2 do
+    for i = 1, 299,2 do
         intVals[i+1].y=intVals[i].y
         if i==1 then
             intVals[i].y=intVals[#intVals].y
@@ -1754,9 +1759,77 @@ function drawTwinIcons()
     end
 end
 
+function drawTwinIcon(icon,pos)
+    local iconPos
+
+    if pos == "LEFT" then
+        iconPos = vec2(72,52)
+    elseif pos == "RIGHT" then
+        iconPos = vec2(390,52)
+    end
+
+    if icon == "TURBO" then
+        display.image{image ="MFD.png",pos = iconPos,size = vec2(80,70),color = rgbm(1,1,1,1), uvStart = vec2(1416/1536,282/1210),uvEnd = vec2(1530/1536, 374/1210)} --turbo icon
+    elseif icon == "OILT" then
+        display.image{image ="MFD.png",pos = iconPos,size = vec2(80,70),color = rgbm(1,1,1,1), uvStart = vec2(1410/1536,375/1210),uvEnd = vec2(1520/1536, 465/1210)} -- oil icon
+    elseif icon == "THROTTLE" then
+        display.image{image ="MFD.png",pos = iconPos,size = vec2(80,70),color = rgbm(1,1,1,1), uvStart = vec2(1416/1536,655/1210),uvEnd = vec2(1530/1536, 750/1210)} -- throttle icon
+    elseif icon == "IDC" then
+        display.image{image ="MFD.png",pos = iconPos,size = vec2(80,70),color = rgbm(1,1,1,1), uvStart = vec2(1416/1536,750/1210),uvEnd = vec2(1530/1536, 842/1210)} -- injector icon
+    elseif icon == "VOLT" then
+        display.image{image ="MFD.png",pos = iconPos,size = vec2(80,70),color = rgbm(1,1,1,1), uvStart = vec2(1425/1536,560/1210),uvEnd = vec2(1535/1536, 645/1210)} -- volt icon
+    elseif icon == "TORQUE" then
+        display.image{image ="MFD.png",pos = iconPos,size = vec2(80,70),color = rgbm(1,1,1,1), uvStart = vec2(1410/1536,460/1210),uvEnd = vec2(1525/1536, 550/1210)} -- torque icon
+    end
+    
+end
+
+local currentTwinSetup = {0,1,0,0,0}
+
 function drawTwinSetupMenu()
 
     local buttonText = {{"BOOST","OIL-TEMP"},{"F-TORQUE","VOLT"},{"INJECTOR","THROTTLE"}}
+
+    if btnDown() or btnUp() then
+        for i=1,5 do
+            if currentTwinSetup[i] == 1 then
+                if btnDown() then
+                    if i==5 then
+                        currentTwinSetup[1] = 1
+                    else
+                        currentTwinSetup[i+1] = 1
+                    end
+                elseif btnUp() then
+                    if i==1 then
+                        currentTwinSetup[5] = 1
+                    else
+                        currentTwinSetup[i-1] = 1
+                    end
+                end
+                currentTwinSetup[i] = 0
+                goto continue
+            end
+        end
+    end
+
+    ::continue::
+    
+    for i=1,5 do
+        if currentTwinSetup[i] == 1 then
+            ui.drawRect(vec2(676,-20+80*i),vec2(903,44+80*i),rgbm(1,1,0,1),6,15,15)
+        end
+        if i > 1 and currentTwinSetup[i] == 1 then --draws corresponding icons when twin menu is selected
+
+            if currentTwin[i-1][1] ~= "NONE" then
+                drawTwinIcon(currentTwin[i-1][1], "LEFT")
+            end
+            if currentTwin[i-1][2] ~= "NONE" then
+                drawTwinIcon(currentTwin[i-1][2], "RIGHT")
+            end
+        end
+    end
+
+
 
     for i=1,5 do
         display.image{image ="MFD.png",pos = vec2(660,-30+80*i),size = vec2(250,85),color = rgbm(1,1,1,1), uvStart = vec2(985/1536,76/1210),uvEnd = vec2(1144/1536, 146/1210)}
@@ -1782,6 +1855,8 @@ function drawTwinSetupMenu()
             display.text{pos = vec2(45+315*(j-1),-15+80*(i+1)), letter = vec2(50,45), spacing = -17,text=buttonText[i][j], font = "Microsquare", color= rgbm(1,1,1,1)}
         end
     end
+
+
 
 end
 
@@ -1993,7 +2068,7 @@ function autoDimBehaviour()
 
 end
 
-local booted = true
+local booted = false
 local bootup = ui.MediaPlayer()
 bootup:setSource('bootup.mp4'):setAutoPlay(true)
 
@@ -2055,9 +2130,7 @@ function update(dt)
                 drawDisplayMenu()
             end
             autoDimBehaviour()
-            --dim
-            --display.rect{pos= vec2(0,0), size= vec2(940,490), color= rgbm(0,0.01,0.09,1)}
-
+    
             --drawRedMenu()
             --drawShiftMenu()
             --drawSelectMenu()
