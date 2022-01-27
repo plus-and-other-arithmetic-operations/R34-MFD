@@ -18,19 +18,18 @@ Stuff that needs to be added to complete the base implementation of the MFD
 - [x] Port to new touge version
 - [x] Implement select screen with h ell's textures
 - [x] Implement shift up screen
-- [ ] Implement return button
-- [ ] Port to ks r34 cars
 - [x] Implement Red Zone Menu
 - [x] Implement menu switchover when treshold is exceeded
 - [x] Add resetting max values on bar menu when middle joystick button pressed
-- [ ] TWIN menu
 - [x] Implement display menu
 - [x] Add start animation
-- [ ] Store saved settings in a way that it persists between sessions 
 - [x] Add dimming (draw opaque rectangle over)
+- [ ] TWIN menu
+- [ ] Implement return button
 - [ ] Add anti kai measures
-- [ ] Maybe do LUTs for readings
 - [ ] Disable script loading for other cars in 3rd person (probably why mp was tanking?)
+- [ ] Maybe do LUTs for readings
+- [ ] Store saved settings in a way that it persists between sessions 
 
 
 # Gauges
@@ -42,11 +41,11 @@ Stuff that needs to be fixed to finalize the gauge implementation
 - [x] Maybe generalize gauge functions to simplify code? - NOT DOABLE FOR NOW, SKILL ISSUE
 - [x] Tweak circular gauges to make them look less weird on rotation
 - [x] Link shift up selection to emissive (use setExtraX and tweak emissive cfg)
-- [ ] Draw --- text when below certain threshold
 - [x] Add toggleable gauge tail
 - [x] Interior temp gauge missing icon
 - [x] Make gauges flash red when maxxed out
 - [ ] Weird needle on oil temp gauge
+- [ ] Draw --- text when below certain threshold
 
 # Graph
 Stuff that needs to be fixed to finalize the graph implementation
@@ -66,19 +65,19 @@ Stuff that needs to make the MFD true to its real life counterpart
 - [x] Check outline selection thickness
 - [x] Check if memory in selected menus is needed or not (It isn't)
 - [x] Correct circular gauge behaviour and layering
-- [ ] Find accurate text font
 - [x] Change interior temp to intercooler temp
 - [x] Find accurate attesa car variable (not really doable atm)
+- [ ] Find accurate text font
 
 # Misc code improvements
 Stuff that needs to be fixed to make the code more compliant to good practices, run faster, etc.
 
-- [ ] Select menu font spacing
 - [x] Optimize bar menu
 - [x] Fix ilja's mess
 - [x] Figure out greyed out select screen
 - [x] Generalize Menu screen
-
+- [ ] Select menu font spacing
+- [ ] Port to ks r34 cars
 
 **Credits:**
 
