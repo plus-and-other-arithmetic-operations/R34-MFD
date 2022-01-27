@@ -30,6 +30,7 @@ Stuff that needs to be added to complete the base implementation of the MFD
 - [x] Add dimming (draw opaque rectangle over)
 - [ ] Add anti kai measures
 - [ ] Maybe do LUTs for readings
+- [ ] Disable script loading for other cars in 3rd person (probably why mp was tanking?)
 
 
 # Gauges
