@@ -29,6 +29,7 @@ Stuff that needs to be added to complete the base implementation of the MFD
 - [ ] Store saved settings in a way that it persists between sessions 
 - [x] Add dimming (draw opaque rectangle over)
 - [ ] Add anti kai measures
+- [ ] Maybe do LUTs for readings
 
 
 # Gauges
