@@ -378,7 +378,6 @@ function drawFTorqueGauge(sidePivot, sidePos,sideOffset)
     maxFTorquePercentage = math.max(maxFTorquePercentage,torquePercentage)
     local maxRotation = (-maxFTorquePercentage) * 2.5 --2.5 is the rotation deg /100
 
-    ac.log(car.wheels[0].slipRatio)
     display.text{pos = vec2(sideOffset+80,415), letter = vec2(30,45), spacing = -10,text="x10", font = "c7_mid", color= rgbm(1,1,1,1)}
     display.text{pos = vec2(sideOffset+150,415), letter = vec2(25,45), spacing = 10,text="Nm", font = "c7_mid", color= rgbm(1,1,1,1)}
     display.text{pos = vec2(sideOffset+151,401), letter = vec2(55,55), spacing = 10,text=".", font = "c7_mid", color= rgbm(1,1,1,1)}
@@ -1245,6 +1244,12 @@ function drawGraph()
     end
 end
 
+function handleBootupSequence()
+    if ac.getCarID(0) ~= "asc_nissan_r34_nur" then
+        os.showMessage("hi kai")
+    end
+end
+
 function drawMenuMode()
     display.text{pos = vec2(50, 0), letter = vec2(60,50), spacing = -22,text="MENU", font = "Microsquare", color= rgbm(1,1,1,1)}
     display.text{pos = vec2(40, 50), letter = vec2(50,40), spacing = -20,text="SELECT", font = "Microsquare", color= rgbm(1,1,1,1)}
@@ -1694,7 +1699,7 @@ function drawDisplayMenu()
     if autoDimming then
         display.image{image ="MFD.png",pos = vec2(615,116),size = vec2(340,45),color = rgbm(1,1,1,1), uvStart = vec2(0/1536,1101/1210),uvEnd = vec2(233/1536, 1141/1210)}
     else
-        display.image{image ="MFD.png",pos = vec2(615,106),size = vec2(340,55),color = rgbm(1,1,1,1), uvStart = vec2(0/1536,1050/1210),uvEnd = vec2(233/1536, 1099/1210)}
+        display.image{image ="MFD.png",pos = vec2(615,116),size = vec2(340,45),color = rgbm(1,1,1,1), uvStart = vec2(0/1536,1059/1210),uvEnd = vec2(233/1536, 1099/1210)}
 
     end
 
@@ -1735,24 +1740,26 @@ function drawDisplayMenu()
     end
 end
 
+
 local twinSelection= {{1,0},{0,0},{0,0}}
-local currentTwin = {{"TURBO","OILT"},{"NONE","NONE"},{"NONE","NONE"},{"NONE","NONE"}}
+local currentTwin = {{"BOOST","OIL-TEMP"},{"NONE","NONE"},{"NONE","NONE"},{"NONE","NONE"}}
 local twinCoords = {{vec2(197,140),vec2(330,140)}, {vec2(197,300),vec2(330,300)}, {vec2(597,140),vec2(730,140)}, {vec2(597,300),vec2(730,300)}}
+local currentDisplayed = {"BOOST","OIL-TEMP"}
 
 function drawTwinIcons()
     for i=1,4 do
         for j=1,2 do
-            if currentTwin[i][j] == "TURBO" then
+            if currentTwin[i][j] == "BOOST" then
                 display.image{image ="MFD.png",pos = twinCoords[i][j],size = vec2(80,70),color = rgbm(1,1,1,1), uvStart = vec2(1416/1536,282/1210),uvEnd = vec2(1530/1536, 374/1210)} --turbo icon
-            elseif currentTwin[i][j] == "OILT" then
+            elseif currentTwin[i][j] == "OIL-TEMP" then
                 display.image{image ="MFD.png",pos = twinCoords[i][j],size = vec2(80,70),color = rgbm(1,1,1,1), uvStart = vec2(1410/1536,375/1210),uvEnd = vec2(1520/1536, 465/1210)} -- oil icon
             elseif currentTwin[i][j] == "THROTTLE" then
                 display.image{image ="MFD.png",pos = twinCoords[i][j],size = vec2(80,70),color = rgbm(1,1,1,1), uvStart = vec2(1416/1536,655/1210),uvEnd = vec2(1530/1536, 750/1210)} -- throttle icon
-            elseif currentTwin[i][j] == "IDC" then
+            elseif currentTwin[i][j] == "INJECTOR" then
                 display.image{image ="MFD.png",pos = twinCoords[i][j],size = vec2(80,70),color = rgbm(1,1,1,1), uvStart = vec2(1416/1536,750/1210),uvEnd = vec2(1530/1536, 842/1210)} -- injector icon
             elseif currentTwin[i][j] == "VOLT" then
                 display.image{image ="MFD.png",pos = twinCoords[i][j],size = vec2(80,70),color = rgbm(1,1,1,1), uvStart = vec2(1425/1536,560/1210),uvEnd = vec2(1535/1536, 645/1210)} -- volt icon
-            elseif currentTwin[i][j] == "TORQUE" then
+            elseif currentTwin[i][j] == "F-TORQUE" then
                 display.image{image ="MFD.png",pos = twinCoords[i][j],size = vec2(80,70),color = rgbm(1,1,1,1), uvStart = vec2(1410/1536,460/1210),uvEnd = vec2(1525/1536, 550/1210)} -- torque icon
             end
         end
@@ -1765,98 +1772,263 @@ function drawTwinIcon(icon,pos)
     if pos == "LEFT" then
         iconPos = vec2(72,52)
     elseif pos == "RIGHT" then
-        iconPos = vec2(390,52)
+        iconPos = vec2(391,52)
     end
 
-    if icon == "TURBO" then
+    if icon == "BOOST" then
         display.image{image ="MFD.png",pos = iconPos,size = vec2(80,70),color = rgbm(1,1,1,1), uvStart = vec2(1416/1536,282/1210),uvEnd = vec2(1530/1536, 374/1210)} --turbo icon
-    elseif icon == "OILT" then
+    elseif icon == "OIL-TEMP" then
         display.image{image ="MFD.png",pos = iconPos,size = vec2(80,70),color = rgbm(1,1,1,1), uvStart = vec2(1410/1536,375/1210),uvEnd = vec2(1520/1536, 465/1210)} -- oil icon
     elseif icon == "THROTTLE" then
         display.image{image ="MFD.png",pos = iconPos,size = vec2(80,70),color = rgbm(1,1,1,1), uvStart = vec2(1416/1536,655/1210),uvEnd = vec2(1530/1536, 750/1210)} -- throttle icon
-    elseif icon == "IDC" then
+    elseif icon == "INJECTOR" then
         display.image{image ="MFD.png",pos = iconPos,size = vec2(80,70),color = rgbm(1,1,1,1), uvStart = vec2(1416/1536,750/1210),uvEnd = vec2(1530/1536, 842/1210)} -- injector icon
     elseif icon == "VOLT" then
         display.image{image ="MFD.png",pos = iconPos,size = vec2(80,70),color = rgbm(1,1,1,1), uvStart = vec2(1425/1536,560/1210),uvEnd = vec2(1535/1536, 645/1210)} -- volt icon
-    elseif icon == "TORQUE" then
+    elseif icon == "F-TORQUE" then
         display.image{image ="MFD.png",pos = iconPos,size = vec2(80,70),color = rgbm(1,1,1,1), uvStart = vec2(1410/1536,460/1210),uvEnd = vec2(1525/1536, 550/1210)} -- torque icon
     end
     
 end
 
 local currentTwinSetup = {0,1,0,0,0}
+local changedTwins = {0,0,0,0}
+local twinTextColor = rgbm(1,1,1,1)
+local activeIcon = {{0,0},{0,0},{0,0}}
+local isSelectingGauges = false
+local isSelectingTwin = false
+local isSelectingSide = false
+local isSelectingLeft = false
+local isSelectingRight = false
+local hasSelectedLeft = false
+local hasSelectedRight = false
+local colorMode = true
+local selectingColor = rgbm(0,1,0,0)
+local currentTwinNo = 1
 
-function drawTwinSetupMenu()
-
-    local buttonText = {{"BOOST","OIL-TEMP"},{"F-TORQUE","VOLT"},{"INJECTOR","THROTTLE"}}
-
-    if btnDown() or btnUp() then
-        for i=1,5 do
-            if currentTwinSetup[i] == 1 then
-                if btnDown() then
-                    if i==5 then
-                        currentTwinSetup[1] = 1
-                    else
-                        currentTwinSetup[i+1] = 1
-                    end
-                elseif btnUp() then
-                    if i==1 then
-                        currentTwinSetup[5] = 1
-                    else
-                        currentTwinSetup[i-1] = 1
-                    end
-                end
-                currentTwinSetup[i] = 0
-                goto continue
-            end
+setInterval(function()  --blinking green twin menu color
+    if isSelectingGauges or isSelectingSide then
+        if colorMode then
+            selectingColor = rgbm(0,1,0,1)
+        else     
+            selectingColor = rgbm(0,1,0,0)
         end
+        colorMode = not colorMode
+    else
+        selectingColor = rgbm(0,1,0,0)
     end
+end
+,1)
 
-    ::continue::
-    
-    for i=1,5 do
-        if currentTwinSetup[i] == 1 then
-            ui.drawRect(vec2(676,-20+80*i),vec2(903,44+80*i),rgbm(1,1,0,1),6,15,15)
+function drawTwinButtons()
+
+    display.text{pos = vec2(180, 85), letter = vec2(51,40), spacing = -22,text="LEFT", font = "Microsquare", color= rgbm(1,1,1,1)} --left and right text, not related to twin buttons but it's included here for cleaner code
+    display.text{pos = vec2(490, 85), letter = vec2(51,40), spacing = -22,text="RIGHT", font = "Microsquare", color= rgbm(1,1,1,1)}
+
+    for i=1,5 do --drawing all twin buttons
+
+        if isSelectingTwin and currentTwinSetup[i] == 1 then
+            ui.drawRect(vec2(676,-20+80*i),vec2(903,44+80*i),rgbm(1,1,0,1),6,15,15) --yellow outlines
         end
-        if i > 1 and currentTwinSetup[i] == 1 then --draws corresponding icons when twin menu is selected
 
-            if currentTwin[i-1][1] ~= "NONE" then
-                drawTwinIcon(currentTwin[i-1][1], "LEFT")
-            end
-            if currentTwin[i-1][2] ~= "NONE" then
-                drawTwinIcon(currentTwin[i-1][2], "RIGHT")
-            end
+        if isSelectingGauges then --only grey out 4 twin buttons if we're selecting gauges
+            display.image{image ="MFD.png",pos = vec2(660,-30+80*i),size = vec2(250,85),color = rgbm(0.85,0.60,0.50,1), uvStart = vec2(985/1536,76/1210),uvEnd = vec2(1144/1536, 146/1210)}
+        else 
+            display.image{image ="MFD.png",pos = vec2(660,-30+80*i),size = vec2(250,85),color = rgbm(1,1,1,1), uvStart = vec2(985/1536,76/1210),uvEnd = vec2(1144/1536, 146/1210)}
         end
-    end
-
-
-
-    for i=1,5 do
-        display.image{image ="MFD.png",pos = vec2(660,-30+80*i),size = vec2(250,85),color = rgbm(1,1,1,1), uvStart = vec2(985/1536,76/1210),uvEnd = vec2(1144/1536, 146/1210)}
         if i > 1 then
             display.text{pos = vec2(682,-13+80*i), letter = vec2(50,45), spacing = -17,text="TWIN", font = "Microsquare", color= rgbm(0,0,0,1)}
             display.text{pos = vec2(837,-13+80*i), letter = vec2(50,45), spacing = -12,text=i-1, font = "Microsquare", color= rgbm(0,0,0,1)}
-            display.text{pos = vec2(680,-15+80*i), letter = vec2(50,45), spacing = -17,text="TWIN", font = "Microsquare", color= rgbm(1,1,1,1)}
-            display.text{pos = vec2(835,-15+80*i), letter = vec2(50,45), spacing = -12,text=i-1, font = "Microsquare", color= rgbm(1,1,1,1)}
+            if changedTwins[i-1] == 1 then
+                display.text{pos = vec2(680,-15+80*i), letter = vec2(50,45), spacing = -17,text="TWIN", font = "Microsquare", color= twinTextColor}
+                display.text{pos = vec2(835,-15+80*i), letter = vec2(50,45), spacing = -12,text=i-1, font = "Microsquare", color= twinTextColor}
+            else
+                display.text{pos = vec2(680,-15+80*i), letter = vec2(50,45), spacing = -17,text="TWIN", font = "Microsquare", color= rgbm(1,1,1,1)}
+                display.text{pos = vec2(835,-15+80*i), letter = vec2(50,45), spacing = -12,text=i-1, font = "Microsquare", color= rgbm(1,1,1,1)}
+            end
+            
         else
             display.text{pos = vec2(727,-13+80*i), letter = vec2(50,45), spacing = -17,text="END", font = "Microsquare", color= rgbm(0,0,0,1)}
             display.text{pos = vec2(725,-15+80*i), letter = vec2(50,45), spacing = -17,text="END", font = "Microsquare", color= rgbm(1,1,1,1)}
         end
     end
+end
 
-    display.text{pos = vec2(180, 85), letter = vec2(51,40), spacing = -22,text="LEFT", font = "Microsquare", color= rgbm(1,1,1,1)}
-    display.text{pos = vec2(490, 85), letter = vec2(51,40), spacing = -22,text="RIGHT", font = "Microsquare", color= rgbm(1,1,1,1)}
+function drawTwinSelectButtons()
+    local buttonText = {{"BOOST","OIL-TEMP"},{"F-TORQUE","VOLT"},{"INJECTOR","THROTTLE"}}
+
+    if isSelectingGauges then --drawing the icons
+        buttonColor = rgbm(1,1,1,1)
+    else
+        buttonColor = rgbm(0.85,0.60,0.50,1)
+    end
 
     for i=1,3 do
         for j=1,2 do
-            ui.drawRect(vec2(55+(320*(j-1)),40),vec2(165+(320*(j-1)),120),rgbm(1,1,1,1),0,15,3)
-            display.image{image ="MFD.png",pos = vec2(20+320*(j-1),-30+80*(i+1)),size = vec2(315,85),color = rgbm(0.85,0.60,0.50,0.75), uvStart = vec2(985/1536,76/1210),uvEnd = vec2(1144/1536, 146/1210)}
+            display.image{image ="MFD.png",pos = vec2(20+320*(j-1),-30+80*(i+1)),size = vec2(315,85),color = buttonColor, uvStart = vec2(985/1536,76/1210),uvEnd = vec2(1144/1536, 146/1210)}
             display.text{pos = vec2(47+315*(j-1),-13+80*(i+1)), letter = vec2(50,45), spacing = -17,text=buttonText[i][j], font = "Microsquare", color= rgbm(0,0,0,1)} 
             display.text{pos = vec2(45+315*(j-1),-15+80*(i+1)), letter = vec2(50,45), spacing = -17,text=buttonText[i][j], font = "Microsquare", color= rgbm(1,1,1,1)}
         end
     end
+end
 
+function drawTwinGreenFlashingButtons()
 
+    if isSelectingLeft then
+        ui.drawRectFilled(vec2(55,40),vec2(165,120),selectingColor,0,15) --green flashing color
+    elseif isSelectingRight then
+        ui.drawRectFilled(vec2(55+(320*(1)),40),vec2(165+(320*(1)),120),selectingColor,0,15)
+    end
+
+    for i=1,3 do
+        for j=1,2 do  
+            ui.drawRect(vec2(55+(320*(j-1)),40),vec2(165+(320*(j-1)),120),rgbm(1,1,1,1),0,15,3) --green rectangle white outline 
+        end
+    end
+    if currentTwinNo ~= 0 then
+        drawTwinIcon(currentTwin[currentTwinNo][1], "LEFT")
+        drawTwinIcon(currentTwin[currentTwinNo][2], "RIGHT")
+    end
+
+end
+
+function drawTwinSetupMenu()
+    local buttonText = {{"BOOST","OIL-TEMP"},{"F-TORQUE","VOLT"},{"INJECTOR","THROTTLE"}}
+    local buttonColor = rgbm(0.85,0.60,0.50,1)
+    
+    if isSelectingTwin and (btnDown() or btnUp() or btnMid()) then --initial end + twin buttons
+        for i=1,5 do
+            if currentTwinSetup[i] == 1 then
+                if btnDown() then
+                    if i==5 then
+                        currentTwinSetup[1] = 1
+                        currentTwinNo = 0
+                    else
+                        currentTwinSetup[i+1] = 1
+                        currentTwinNo = i
+                    end
+                elseif btnUp() then
+                    if i==1 then
+                        currentTwinSetup[5] = 1
+                        currentTwinNo = 4
+                    elseif i==2 then
+                        currentTwinSetup[i-1] = 1
+                        currentTwinNo = 0
+                    else
+                        currentTwinSetup[i-1] = 1
+                        currentTwinNo = i-2
+                    end
+                elseif btnMid() then
+                    if i == 1 then --end button pressed
+                        currentTwinNo = 1
+                        currentTwinSetup = {0,1,0,0,0} --resetting the active buttons for the outline
+                        changedTwins = {0,0,0,0} -- resetting changed twins
+                        isTwinSetupOpen = false   
+                    else
+                        activeIcon[1][1]=1
+                        currentTwinNo = i-1
+                        changedTwins[currentTwinNo] = 1
+                        twinTextColor = rgbm(1,1,0,1)
+                        isSelectingSide = true
+                        isSelectingLeft = true
+                    end
+                    isSelectingTwin = false
+                    goto continue
+                end
+                currentTwinSetup[i] = 0
+                goto continue
+            end
+        end
+    
+   
+    elseif isSelectingSide and (btnLeft() or btnRight() or btnMid()) then --side selection w flashing green light
+        
+        if (isSelectingLeft and (btnLeft() or btnRight())) then
+            isSelectingLeft = false
+            isSelectingRight = true
+        elseif (isSelectingRight and (btnLeft() or btnRight())) then
+            isSelectingLeft = true
+            isSelectingRight = false
+        elseif btnMid() then
+            isSelectingGauges = true
+            isSelectingSide = false
+        end
+    
+    
+    elseif isSelectingGauges and (btnLeft() or btnRight() or btnMid() or btnDown() or btnUp()) then
+        twinTextColor = rgbm(1,1,0,1)
+        for i=1, 3 do
+            for j=1,2 do
+                if activeIcon[i][j] == 1 then
+                    if btnUp() then
+                        if i==1 then        
+                            activeIcon[3][j] = 1
+                        else
+                            activeIcon[i-1][j] = 1
+                        end
+                    elseif btnDown() then
+                        if i==3 then
+                            activeIcon[1][j] = 1
+                        else      
+                            activeIcon[i+1][j] = 1
+                        end
+                    elseif btnLeft() then
+                        if j==1 then        
+                            activeIcon[i][2] = 1
+                        else
+                            activeIcon[i][j-1] = 1
+                        end
+                    elseif btnRight() then
+                        if j==2 then
+                            activeIcon[i][1] = 1
+                        else
+                            activeIcon[i][j+1] = 1
+                        end
+                    elseif btnMid() and isSelectingLeft then
+                        isSelectingSide = true
+                        isSelectingGauges = false
+                        currentTwin[currentTwinNo][1] = buttonText[i][j]
+                        hasSelectedLeft = true
+                        goto continue 
+                    elseif btnMid() and isSelectingRight then
+                        isSelectingSide = true
+                        isSelectingGauges = false
+                        currentTwin[currentTwinNo][2] = buttonText[i][j]
+                        hasSelectedRight = true
+                        goto continue 
+                    end
+                    activeIcon[i][j] = 0
+                    goto continue
+                end
+            end
+        end
+    end
+
+    ::continue::
+
+    if hasSelectedLeft and hasSelectedRight then --both selected, go back to twin selection
+        isSelectingSide = false
+        isSelectingGauges = false
+        isSelectingTwin = true
+        hasSelectedLeft = false
+        hasSelectedRight = false
+    end
+
+    drawTwinButtons()
+
+    drawTwinGreenFlashingButtons()
+
+    if isSelectingGauges then --twin gauge selection outline
+        for i=1,3 do
+            for j=1,2 do
+                if activeIcon[i][j] == 1 then
+                    ui.drawRect(vec2(40+320*(j-1),-20+80*(i+1)),vec2(326+320*(j-1),44+80*(i+1)),rgbm(1,1,0,1),6,15,15)
+                end
+            end          
+        end
+    end
+
+    drawTwinSelectButtons()
 
 end
 
@@ -1923,22 +2095,25 @@ function drawTwinMenu()
             for j=1,3 do
                 if twinSelection[3][i] == 1 then
                     isTwinSetupOpen = true
+                    isSelectingTwin = true
                 elseif twinSelection[j][i] == 1 then
-                    --FIGURE OUT HOW TO DISPLAY THEM, distance from the create button
+                    if j == 1 and i == 1 then --twin 1
+                        currentDisplayed = currentTwin[1]
+                    elseif j == 2 and i == 1 then --twin 2
+                        currentDisplayed = currentTwin[2]
+                    elseif j == 1 and i == 2 then --twin 3
+                        currentDisplayed = currentTwin[3]
+                    elseif j == 2 and i == 2 then --twin 4
+                        currentDisplayed = currentTwin[4]
+                    end
+                    if currentDisplayed[1] ~= "NONE" or currentDisplayed[2] ~= "NONE" then
+                        isSelectActive = false
+                    end
                 end
             end
         end
         
     end
-
-    --display.text{pos = vec2(55+(220*0),50+(0*215)), letter = vec2(55,40), spacing = -27,text="BOOST", font = "Microsquare", color= rgbm(1,1,1,1)}
-    --display.text{pos = vec2(40+(220*1),50+(0*215)), letter = vec2(50,40), spacing = -27,text="OIL-TEMP", font = "Microsquare", color= rgbm(1,1,1,1)}
-    --display.text{pos = vec2(35+(220*2),50+(0*215)), letter = vec2(50,40), spacing = -27,text="F-TORQUE", font = "Microsquare", color= rgbm(1,1,1,1)}
-    --display.text{pos = vec2(70+(220*3),50+(0*215)), letter = vec2(55,40), spacing = -27,text="VOLT", font = "Microsquare", color= rgbm(1,1,1,1)}
-    --display.text{pos = vec2(30+(220*0),50+(1*215)), letter = vec2(50,40), spacing = -27,text="THROTTLE", font = "Microsquare", color= rgbm(1,1,1,1)}
-    --display.text{pos = vec2(30+(220*1),50+(1*215)), letter = vec2(50,40), spacing = -27,text="INJECTOR", font = "Microsquare", color= rgbm(1,1,1,1)}
-    --display.text{pos = vec2(35+(220*2),50+(1*215)), letter = vec2(50,40), spacing = -27,text="EXH-TEMP", font = "Microsquare", color= rgbm(1,1,1,1)}
-    --display.text{pos = vec2(30+(220*3),50+(1*215)), letter = vec2(50,40), spacing = -27,text="INT-TEMP", font = "Microsquare", color= rgbm(1,1,1,1)}
 
     display.text{pos = vec2(150,70), letter = vec2(50,45), spacing = -12,text="TWIN", font = "Microsquare", color= rgbm(1,1,1,1)}
     display.text{pos = vec2(150,230), letter = vec2(50,45), spacing = -12,text="TWIN", font = "Microsquare", color= rgbm(1,1,1,1)}
@@ -1957,15 +2132,40 @@ function drawTwinMenu()
 
     display.image{image ="MFD.png",pos = vec2(139,400),size = vec2(314,85),color = rgbm(1,1,1,1), uvStart = vec2(985/1536,76/1210),uvEnd = vec2(1144/1536, 146/1210)}
 
-    --display.image{image ="MFD.png",pos = vec2(100,150),size = vec2(85,70),color = rgbm(1,1,1,1), uvStart = vec2(1416/1536,282/1210),uvEnd = vec2(1530/1536, 374/1210)} --turbo icon
-    --display.image{image ="MFD.png",pos = vec2(320,145),size = vec2(85,70),color = rgbm(1,1,1,1), uvStart = vec2(1416/1536,370/1210),uvEnd = vec2(1530/1536, 462/1210)} -- oil icon
-    --display.image{image ="MFD.png",pos = vec2(538,140),size=vec2(85,70),color = rgbm(1,1,1,1), uvStart = vec2(1416/1536,450/1210),uvEnd = vec2(1530/1536, 542/1210)} -- torque icon
-    --display.image{image ="MFD.png",pos = vec2(753,142),size=vec2(90,70),color = rgbm(1,1,1,1), uvStart = vec2(1416/1536,550/1210),uvEnd = vec2(1530/1536, 642/1210)} -- battery icon
-    --display.image{image ="MFD.png",pos = vec2(95,360),size = vec2(85,70),color = rgbm(1,1,1,1), uvStart = vec2(1416/1536,650/1210),uvEnd = vec2(1530/1536, 742/1210)} -- throttle icon
-    --display.image{image ="MFD.png",pos = vec2(316,360),size = vec2(85,70),color = rgbm(1,1,1,1), uvStart = vec2(1416/1536,750/1210),uvEnd = vec2(1530/1536, 842/1210)} -- injector icon
-    --display.image{image ="MFD.png",pos = vec2(540,365),size = vec2(85,70),color = rgbm(1,1,1,1), uvStart = vec2(1416/1536,850/1210),uvEnd = vec2(1530/1536, 940/1210)} -- exhaust icon
-    --display.image{image ="MFD.png",pos = vec2(752,355),size = vec2(85,70),color = rgbm(1,1,1,1), uvStart = vec2(1416/1536,932/1210),uvEnd = vec2(1530/1536, 1024/1210)} -- int icon
-    
+
+    display.image{image ="MFD.png",pos = vec2(177,399),size = vec2(250,80),color = rgbm(1,1,1,1), uvStart = vec2(14/1536,1020/1210),uvEnd = vec2(110/1536, 1060/1210)}
+end
+
+
+function drawTwins() --drawing the gauges
+
+    if currentDisplayed[1] == "BOOST" then
+        drawTurboGauge(leftPivot,leftPos,leftOffset)
+    elseif currentDisplayed[1] == "OIL-TEMP" then
+        drawOilTempGauge(leftPivot,leftPos, leftOffset)
+    elseif currentDisplayed[1] == "F-TORQUE" then
+        drawFTorqueGauge(leftPivot,leftPos,leftOffset)
+    elseif currentDisplayed[1] == "VOLT" then
+        drawVoltGauge(leftPivot,leftPos, leftOffset)
+    elseif currentDisplayed[1] == "INJECTOR" then
+        drawInjectorGauge(leftPivot,leftPos,leftOffset)
+    elseif currentDisplayed[1] == "THROTTLE" then
+        drawThrottleGauge(leftPivot,leftPos,leftOffset)
+    end
+
+    if currentDisplayed[2] == "BOOST" then
+        drawTurboGauge(rightPivot,rightPos,rightOffset)
+    elseif currentDisplayed[2] == "OIL-TEMP" then
+        drawOilTempGauge(rightPivot,rightPos, rightOffset)
+    elseif currentDisplayed[2] == "F-TORQUE" then
+        drawFTorqueGauge(rightPivot,rightPos,rightOffset)
+    elseif currentDisplayed[2] == "VOLT" then
+        drawVoltGauge(rightPivot,rightPos, rightOffset)
+    elseif currentDisplayed[2] == "INJECTOR" then
+        drawInjectorGauge(rightPivot,rightPos,rightOffset)
+    elseif currentDisplayed[2] == "THROTTLE" then
+        drawThrottleGauge(rightPivot,rightPos,rightOffset)
+    end
 end
 
 function modeBehaviour()
@@ -1996,14 +2196,17 @@ function modeBehaviour()
         if isMenuActive then
             drawMenuMode()
         elseif isSelectActive then
-            drawTwinMenu()
+            if isTwinSetupOpen then
+                drawTwinSetupMenu()
+            else
+                drawTwinMenu()
+            end
         elseif isShiftActive then
             drawShiftMenu()
         elseif isRedActive then
             drawRedMenu()    
         else
-            drawOilTempGauge(leftPivot,leftPos, leftOffset)
-            drawTurboGauge(rightPivot,rightPos,rightOffset)
+            drawTwins()
         end
     end
 
@@ -2032,8 +2235,10 @@ function shiftLightBehaviour()
 end
 
 
+
 local switchOver = false
 setInterval(function()  --switches to bar menu for 1 second if sensor limit was exceeded
+    
     if
     getBarColor(car.exhaustTemperature,tresholdValues["exhT"]) == rgbm(1,0,0,1) or 
     getBarColor(idcLevel(car.rpm),tresholdValues["injector"]) == rgbm(1,0,0,1) or
@@ -2083,6 +2288,7 @@ function update(dt)
         if not bootup:ended() or bootup:ended() and car.gas < 0.1 and not booted then
             ui.drawImage(bootup, vec2(-10,0), vec2(1000, 512)) --lazy way of stretching the background
             ui.drawImage(bootup, vec2(100,47), vec2(900, 552))
+            handleBootupSequence()
         else
             booted = true
         end
@@ -2119,7 +2325,7 @@ function update(dt)
             --drawTwinSetupMenu()
 
             --drawDisplayMenu()
-
+            
             shiftLightBehaviour()
             modeBehaviour()
             detectSwitchover()
