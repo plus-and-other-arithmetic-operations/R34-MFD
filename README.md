@@ -1,7 +1,7 @@
 ## R34 Multi Function Display
 Fully functional MFD made in LUA for the asc_nissan_r34_nur.
 
-For now, it requires different data.files, as it needs to override the shift up light control
+For now, it requires different data.acd files, as it needs to override the shift up light control
 
 # Installation:
 
