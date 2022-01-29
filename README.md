@@ -58,7 +58,7 @@ Stuff that needs to be fixed to finalize the graph implementation
 # Textures
 Stuff that needs to be fixed to finalize the visuals
 - [x] Get rid of placeholder textures (wait for h ell)
-- [ ] Change textures to match the real thing
+- [x] Change textures to match the real thing
 
 # Accuracy (making it true to IRL)
 Stuff that needs to make the MFD true to its real life counterpart
