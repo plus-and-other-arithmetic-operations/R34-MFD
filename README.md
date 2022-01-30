@@ -10,6 +10,10 @@ For now, it requires different data.acd files, as it needs to override the shift
 - Place the downloaded files in the directory, overwriting the old ones.
 - Enjoy!
 
+# IMPORTANT
+
+Due to the MFD locally storing the settings, if any bug occurs and the settings get corrupted, you need to manually delete them in `C:\Users\...\Documents\Assetto Corsa\cfg\extension\state\lua\car_script\asc_nissan_r34_nur.ini`
+
 
 # TO-DO
 
