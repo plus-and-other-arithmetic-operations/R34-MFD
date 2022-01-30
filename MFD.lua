@@ -1,3 +1,211 @@
+local storedValues = ac.storage{
+    currentDisplayed="BOOST/OIL-TEMP",
+    currentTwin = "BOOST/OIL-TEMP/NONE/NONE/NONE/NONE/NONE/NONE",
+
+    currentActiveMenu = "SELECT",
+    currentActive = "BOOST",
+    shiftTreshold = 8000,
+
+    tresholdValues= "1/75/120/120/875/50",
+
+    autoDimming = false,
+    brightnessAdjustment = false,
+    gaugeTail = true,
+    isScreenOn = true, 
+    screenBrightness = 0.5
+}
+
+function storageUnpack(data,items,isnumber) --since ac storage doesn't support tables, this is a function that unpacks a string into a table, so it can be used
+    local storedVals = {}
+    for i=1,items do
+        if isnumber then
+            storedVals[i] = tonumber(string.split(data,'/')[i])
+        else
+            storedVals[i] = string.split(data,'/')[i]
+        end
+    end
+    return storedVals
+end
+
+function storageUnpackNested(data,items) --same thing but with nested tables
+    local storedVals = {{},{},{},{}}
+    local k = 1 --just a simple iterator over the string
+    for i=1,4 do
+        for j=1,2 do
+            storedVals[i][j] = string.split(data,'/')[k]
+            k = k+1
+        end
+    end
+    return storedVals
+end
+
+function storagePack(data) --prepairing string to store
+    local storedString = ""
+    for i=1, #data do
+        storedString = storedString .. data[i]
+        if i ~= #data then
+            storedString = storedString .. "/"  
+        end
+    end
+    return storedString
+end
+
+function storagePackNested(data) --same thing but with nested tables
+    local storedString = ""
+    for i=1, 4 do
+        for j=1,2 do
+            storedString = storedString .. data[i][j]
+            if i*j ~= 8 then --eh, it works
+                storedString = storedString .. "/" 
+            end
+        end
+    end
+    return storedString
+end
+
+
+--button mapping--
+
+local displayMesh = display.interactiveMesh{ mesh = "INT_BUTTON_NM", resolution = vec2(512, 512)}
+local displayMesh2 = display.interactiveMesh{ mesh = "INT_BUTTONS", resolution = vec2(512, 512)}
+local btnMode = displayMesh2.clicked(vec2(423, 34),vec2(63, 24))
+local btnMenu = displayMesh2.clicked(vec2(118, 246),vec2(63, 26))
+local btnReturn = displayMesh2.clicked(vec2(2, 245),vec2(95, 29))
+local btnDisp = displayMesh2.clicked(vec2(3, 107),vec2(61, 28))
+local btnRight = displayMesh.clicked(vec2(229, 241),vec2(28, 25))
+local btnLeft = displayMesh.clicked(vec2(226, 112),vec2(34, 32))
+local btnDown = displayMesh.clicked(vec2(165, 177),vec2(32, 25))
+local btnUp = displayMesh.clicked(vec2(291, 177),vec2(28, 27))
+local btnMid = displayMesh.clicked(vec2(216, 164),vec2(54, 54))
+local btnMidHold = displayMesh.pressed(vec2(216, 164),vec2(54, 54),1)
+
+
+--IDK--
+
+local maxValues = {["boost"]=-350, ["oilT"] = 70, ["waterT"] = 0, ["exhT"] = 0,["intT"]=0,["volt"] = 8}
+local maxValues2 = {["boost"]=-350, ["oilT"] = 70, ["waterT"] = 0, ["exhT"] = 0,["intT"]=0,["volt"] = 8}
+
+--aux variables for the gauges--
+
+local leftPivot = vec2(282-40, 226)
+local leftPos = vec2(190-40, 230)
+local leftOffset = -40
+
+local rightPos = vec2(620, 230)
+local rightPivot = vec2(703, 226)
+local rightOffset= 425
+
+local maxTurboPercentage = 0
+local maxOilPercentage = 0
+local maxIDCPercentage = 0
+local maxThrottlePercentage = 0
+local maxFTorquePercentage = 0
+local maxVoltPercentage = 0
+local maxExhPercentage = 0
+local maxTempPercentage = 0
+
+local mfdSize= vec2(324,380) --size for mfd gauges
+
+
+--tables with the stored values for the graphs--
+
+function fillTable(yVal) --fills the tables with the initial coords
+    local valTable = {}
+    for i=0,300 do
+        table.insert(valTable, vec2(465-(1.15*i),yVal))
+    end
+    return valTable
+end
+
+local boostVals = fillTable(332)
+local throttleVals = fillTable(399)
+local idcVals = fillTable(399)
+local voltVals = fillTable(399)
+local torqueVals = fillTable(399)
+local oilVals = fillTable(399)
+local exhVals = fillTable(399)
+local intVals = fillTable(399)
+
+--twin menu variables--
+
+local currentTwin = storageUnpackNested(storedValues.currentTwin,8) --storing this
+local currentDisplayed = storageUnpack(storedValues.currentDisplayed, 2) --storing this
+
+local twinSelection= {{1,0},{0,0},{0,0}}
+local twinCoords = {{vec2(197,140),vec2(330,140)}, {vec2(197,300),vec2(330,300)}, {vec2(597,140),vec2(730,140)}, {vec2(597,300),vec2(730,300)}}
+local currentTwinSetup = {0,1,0,0,0}
+local changedTwins = {0,0,0,0}
+local twinTextColor = rgbm(1,1,1,1)
+local activeIcon = {{0,0},{0,0},{0,0}}
+local isSelectingGauges = false
+local isSelectingTwin = false
+local isSelectingSide = false
+local isSelectingLeft = false
+local isSelectingRight = false
+local hasSelectedLeft = false
+local hasSelectedRight = false
+local colorMode = true
+local selectingColor = rgbm(0,1,0,0)
+local currentTwinNo = 1
+
+--menu variables --
+
+local currentActiveMenu = storedValues.currentActiveMenu --storing this
+
+local modeNumber = 1 --starts in Bar Menu
+local isMenuActive = false
+local isSelectActive = false
+local isShiftActive = false
+local isRedActive = false
+local menuOptions = {1,0,0}
+local menu1Options = {0,1,0}
+local activeMenu = {"SELECT","RED ZONE", "SHIFT UP"}
+
+
+-- graph menu variables--
+
+local currentActive = storedValues.currentActive --storing this
+
+local selectedMode3 = {{1,0,0,0},{0,0,0,0}}
+local activeMode3 = {{"BOOST","OIL-TEMP","F-TORQUE","VOLT"},{"THROTTLE","INJECTOR","EXH-TEMP","INT-TEMP"}}
+
+
+--shift mode variables--
+
+local shiftTreshold = storedValues.shiftTreshold --storing this
+
+local currentShiftTreshold = 3
+local tresholds = {5000,6000,7000,8000,9000,10000}
+
+
+-- red menu variables --
+
+--local tresholdValues = {["boost"]=1, ["injector"]=75,["oilT"] = 120, ["waterT"] = 120, ["exhT"] = 875,["intT"]=50} --store this?
+local tresholdValues = storageUnpack(storedValues.tresholdValues,6,true)
+
+local activeRed = {true, false, false, false, false, false, false}
+local redColors = {rgbm(1,1,0,1),rgbm(1,1,1,1),rgbm(1,1,1,1),rgbm(1,1,1,1),rgbm(1,1,1,1)}
+
+
+--display menu variables--
+
+local activeDisplay = {true,false,false,false}
+local autoDimming = storedValues.autoDimming  --storing this
+local brightnessAdjustment = storedValues.brightnessAdjustment  --storing this
+local gaugeTail = storedValues.gaugeTail --storing this 
+local isScreenOn =  storedValues.isScreenOn  --storing this 
+local screenBrightness = storedValues.screenBrightness --storing this
+
+--boot up animation stuff--
+
+local booted = false
+local bootup = ui.MediaPlayer()
+bootup:setSource('bootup.mp4'):setAutoPlay(true)
+
+--switchover when bars flash red--
+
+local switchOver = false
+
 function drawMenuBars(basex, basey, sizex, sizey, redMenu)
     if not redMenu then --different behaviour for red zone menu
         display.rect{pos= vec2(basex,basey), size= vec2(sizex,sizey), color= rgbm(1,1,1,1)}
@@ -28,10 +236,6 @@ end
 function idcLevel(rpm)
     return math.saturate(rpm/8000)*100-10 --find accurate equation
 end
-
-local maxValues = {["boost"]=-350, ["oilT"] = 70, ["waterT"] = 0, ["exhT"] = 0,["intT"]=0,["volt"] = 8}
-local maxValues2 = {["boost"]=-350, ["oilT"] = 70, ["waterT"] = 0, ["exhT"] = 0,["intT"]=0,["volt"] = 8}
-local tresholdValues = {["boost"]=1, ["throttle"]=75,["injector"]=75,["oilT"] = 120, ["waterT"] = 120, ["exhT"] = 875,["intT"]=50}
 
 function getBarColor(currentval,treshold)
     if currentval < treshold then
@@ -65,7 +269,7 @@ function drawBarMenuGreenBars()
     displayedPressure = (car.turboBoost+0.3)*10
     maxValues["boost"] = math.max(maxValues["boost"],displayedPressure)
     boostBar = (maxValues["boost"]+0.3)*15
-    ui.drawRectFilled(vec2(405,55),vec2(410+displayedPressure*15,100),getBarColor(2*math.floor(car.turboBoost*100)/100-0.3, tresholdValues["boost"]))
+    ui.drawRectFilled(vec2(405,55),vec2(410+displayedPressure*15,100),getBarColor(2*math.floor(car.turboBoost*100)/100-0.3, tresholdValues[1]))
     ui.drawRectFilled(vec2(405+boostBar,55),vec2(405+boostBar+5,100),rgbm(1,1,1,1)) --more optimized than using horizontal bar
 
     display.text{width=205,pos = vec2(605, 60),alignment=1, letter = vec2(40, 35), spacing = -18,text=string.format("%.2f", 2*math.floor(car.turboBoost*100)/100-0.3), font = "Microsquare", color= rgbm(1,1,1,1)}
@@ -79,14 +283,14 @@ function drawBarMenuGreenBars()
    
     --idc bar (no max?)--
 
-    display.horizontalBar{pos= vec2(405,175), size= vec2(285,45), delta=0, activeColor= getBarColor(idcLevel(car.rpm),tresholdValues["injector"]), inactiveColor= rgbm(0,0,0,0), total=100, active=idcLevel(car.rpm)}    
+    display.horizontalBar{pos= vec2(405,175), size= vec2(285,45), delta=0, activeColor= getBarColor(idcLevel(car.rpm),tresholdValues[2]), inactiveColor= rgbm(0,0,0,0), total=100, active=idcLevel(car.rpm)}    
     displayPercentageCustomInput(idcLevel(car.rpm),180)
 
     --oil temp bar--
 
     maxValues["oilT"] = math.max(maxValues["oilT"],car.oilTemperature)
     oilBar = maxValues["oilT"]-70
-    ui.drawRectFilled(vec2(405,235),vec2(410+car.oilTemperature-70,280),getBarColor(car.oilTemperature,tresholdValues["oilT"]))
+    ui.drawRectFilled(vec2(405,235),vec2(410+car.oilTemperature-70,280),getBarColor(car.oilTemperature,tresholdValues[3]))
     ui.drawRectFilled(vec2(405+oilBar,235),vec2(405+oilBar+5,280),rgbm(1,1,1,1)) --more optimized than using horizontal bar   
     displayCelsiusCustomInput(car.oilTemperature, 237, true, 70)
 
@@ -94,7 +298,7 @@ function drawBarMenuGreenBars()
 
     maxValues["waterT"] = math.max(maxValues["waterT"],car.waterTemperature)
     waterBar = maxValues["waterT"]-70
-    ui.drawRectFilled(vec2(405,295),vec2(410+car.waterTemperature-70,340),getBarColor(car.waterTemperature,tresholdValues["waterT"]))
+    ui.drawRectFilled(vec2(405,295),vec2(410+car.waterTemperature-70,340),getBarColor(car.waterTemperature,tresholdValues[4]))
     ui.drawRectFilled(vec2(405+waterBar,295),vec2(405+waterBar+5,340),rgbm(1,1,1,1))
     displayCelsiusCustomInput(car.waterTemperature, 297, true, 70)
 
@@ -102,7 +306,7 @@ function drawBarMenuGreenBars()
     maxValues["exhT"] = math.max(maxValues["exhT"],car.exhaustTemperature)
     exhBar = maxValues["exhT"]*0.29
     
-    ui.drawRectFilled(vec2(405,355),vec2(410+car.exhaustTemperature*0.29,400),getBarColor(car.exhaustTemperature,tresholdValues["exhT"]))
+    ui.drawRectFilled(vec2(405,355),vec2(410+car.exhaustTemperature*0.29,400),getBarColor(car.exhaustTemperature,tresholdValues[5]))
     ui.drawRectFilled(vec2(405+exhBar,355),vec2(405+exhBar+5,400),rgbm(1,1,1,1))        
     displayCelsiusCustomInput(car.exhaustTemperature, 357) --omitting boundary flag is the same as typing false
 
@@ -128,23 +332,9 @@ function drawBarMenuGreenBars()
 
 end
 
-local displayMesh = display.interactiveMesh{ mesh = "INT_BUTTON_NM", resolution = vec2(512, 512)}
-local displayMesh2 = display.interactiveMesh{ mesh = "INT_BUTTONS", resolution = vec2(512, 512)}
-local btnMode = displayMesh2.clicked(vec2(423, 34),vec2(63, 24))
-local btnMenu = displayMesh2.clicked(vec2(118, 246),vec2(63, 26))
-local btnReturn = displayMesh2.clicked(vec2(2, 245),vec2(95, 29))
-local btnDisp = displayMesh2.clicked(vec2(3, 107),vec2(61, 28))
-local btnRight = displayMesh.clicked(vec2(229, 241),vec2(28, 25))
-local btnLeft = displayMesh.clicked(vec2(226, 112),vec2(34, 32))
-local btnDown = displayMesh.clicked(vec2(165, 177),vec2(32, 25))
-local btnUp = displayMesh.clicked(vec2(291, 177),vec2(28, 27))
-local btnMid = displayMesh.clicked(vec2(216, 164),vec2(54, 54))
-local btnMidHold = displayMesh.pressed(vec2(216, 164),vec2(54, 54),1)
-
-setInterval(function()  --if held, reset max values
+setInterval(function()  --if middle button is held, reset max values
     if btnMidHold() then        
         maxValues = {["boost"]=-350, ["oilT"] = 70, ["waterT"] = 0, ["exhT"] = 0,["intT"]=0,["volt"] = 8}
-
     end
 end
 ,1.5)
@@ -162,26 +352,6 @@ function drawBarMenu()
     drawBarMenuGreenBars()
 end
 
-local leftPivot = vec2(282-40, 226)
-local leftPos = vec2(190-40, 230)
-
-local rightPos = vec2(620, 230)
-local rightPivot = vec2(703, 226)
-
-local leftOffset = -40
-local rightOffset= 425
-local maxTurboPercentage = 0
-local maxOilPercentage = 0
-local maxIDCPercentage = 0
-local maxThrottlePercentage = 0
-local maxFTorquePercentage = 0
-local maxVoltPercentage = 0
-local maxExhPercentage = 0
-local maxTempPercentage = 0
-local mfdSize= vec2(324,380)
-
-local gaugeTail = true
-
 function drawIntGauge(sidePivot, sidePos,sideOffset)
     local tempPercentage = math.min(100, car.exhaustTemperature/10)
     maxTempPercentage = math.max(maxTempPercentage,tempPercentage)
@@ -196,20 +366,10 @@ function drawIntGauge(sidePivot, sidePos,sideOffset)
         ui.beginRotation()
         ui.beginRotation()
         if gaugeTail then
-            display.rect {
-                -- draws rectangle
-                pos = sidePos,
-                size = vec2(21, 120),
-                color = rgbm(0,1,0,1)
-            }
+            display.rect {pos = sidePos, size = vec2(21, 120), color = rgbm(0,1,0,1)}
         end
         if i==80 then
-            display.rect {
-                -- draws rectangle
-                pos = sidePos,
-                size = vec2(7, 120),
-                color = rgbm(1,0,0,1)
-            }
+            display.rect {pos = sidePos, size = vec2(7, 120), color = rgbm(1,0,0,1)}
         end
         ui.endRotation(35)
         if tempPercentage > (100 / 80 * i) then
@@ -220,12 +380,7 @@ function drawIntGauge(sidePivot, sidePos,sideOffset)
 
         ui.beginRotation()
         ui.beginRotation()
-        display.rect {
-            -- draws rectangle
-            pos = vec2(sidePos.x+5, sidePos.y-5),
-            size = vec2(7, 115),
-            color = rgbm(1,1,1,1)
-        }
+        display.rect {pos = vec2(sidePos.x+5, sidePos.y-5), size = vec2(7, 115), color = rgbm(1,1,1,1)}
         ui.endRotation(35)
         ui.endPivotRotation(maxRotation + 140, sidePivot)
     end
@@ -265,20 +420,10 @@ function drawExhGauge(sidePivot, sidePos, sideOffset)
         ui.beginRotation()
         ui.beginRotation()
         if gaugeTail then
-            display.rect {
-                -- draws rectangle
-                pos = sidePos,
-                size = vec2(21, 120),
-                color = getBarColor(car.exhaustTemperature,tresholdValues["exhT"])
-            }
+            display.rect {pos = sidePos, size = vec2(21, 120), color = getBarColor(car.exhaustTemperature,tresholdValues[5])}
         end
         if i==80 then
-            display.rect {
-                -- draws rectangle
-                pos = sidePos,
-                size = vec2(7, 120),
-                color = rgbm(1,0,0,1)
-            }
+            display.rect {pos = sidePos, size = vec2(7, 120), color = rgbm(1,0,0,1)}
         end
         ui.endRotation(35)
         if exhPercentage > (100 / 80 * i) then
@@ -289,12 +434,7 @@ function drawExhGauge(sidePivot, sidePos, sideOffset)
 
         ui.beginRotation()
         ui.beginRotation()
-        display.rect {
-            -- draws rectangle
-            pos = vec2(sidePos.x+5, sidePos.y-5),
-            size = vec2(7, 115),
-            color = rgbm(1,1,1,1)
-        }
+        display.rect {pos = vec2(sidePos.x+5, sidePos.y-5), size = vec2(7, 115), color = rgbm(1,1,1,1)}
         ui.endRotation(35)
         ui.endPivotRotation(maxRotation + 141, sidePivot)
     end
@@ -372,7 +512,6 @@ function drawVoltGauge(sidePivot, sidePos, sideOffset)
 
 end
 
-
 function drawFTorqueGauge(sidePivot, sidePos,sideOffset)
     local torquePercentage = math.abs(car.drivetrainTorque)/6 -- conversion to %
     maxFTorquePercentage = math.max(maxFTorquePercentage,torquePercentage)
@@ -439,20 +578,10 @@ function drawThrottleGauge(sidePivot, sidePos, sideOffset)
         ui.beginRotation()
         ui.beginRotation()
         if gaugeTail then
-            display.rect {
-                -- draws rectangle
-                pos = sidePos,
-                size = vec2(21, 120),
-                color = rgbm(0,1,0,1)
-            }
+            display.rect {pos = sidePos,size = vec2(21, 120),color = rgbm(0,1,0,1)}
         end
         if i==80 then
-            display.rect {
-                -- draws rectangle
-                pos = sidePos,
-                size = vec2(7, 120),
-                color = rgbm(1,0,0,1)
-            }
+            display.rect {pos = sidePos, size = vec2(7, 120), color = rgbm(1,0,0,1)}
         end
         ui.endRotation(35)
         if throttlePercentage > (100 / 80 * i) then
@@ -487,7 +616,7 @@ function drawInjectorGauge(sidePivot, sidePos, sideOffset)
         ui.beginRotation()
         ui.beginRotation()
         if gaugeTail then
-            display.rect {pos = sidePos,size = vec2(20, 120),color = getBarColor(idcLevel(car.rpm),tresholdValues["injector"])}
+            display.rect {pos = sidePos,size = vec2(20, 120),color = getBarColor(idcLevel(car.rpm),tresholdValues[2])}
         end
         if i==80 then
             display.rect {pos = sidePos,size = vec2(7, 120),color = rgbm(1,0,0,1)}
@@ -530,25 +659,14 @@ function drawTurboGauge(sidePivot, sidePos, sideOffset)
     
     for i = 1, 40 do
         
-        
         ui.beginRotation()
         ui.beginRotation()
 
         if gaugeTail then
-            display.rect {
-                -- draws rectangle
-                pos = sidePos,
-                size = vec2(20, 120),
-                color = getBarColor(2*math.floor(car.turboBoost*100)/100-0.3, tresholdValues["boost"])
-            }
+            display.rect {pos = sidePos, size = vec2(20, 120), color = getBarColor(2*math.floor(car.turboBoost*100)/100-0.3, tresholdValues[1])}
         end
         if i==40 then
-            display.rect {
-                -- draws rectangle
-                pos = sidePos,
-                size = vec2(7, 120),
-                color = rgbm(1,0,0,1)
-            }
+            display.rect {pos = sidePos, size = vec2(7, 120), color = rgbm(1,0,0,1)}
         end
         ui.endRotation(35)
 
@@ -559,22 +677,13 @@ function drawTurboGauge(sidePivot, sidePos, sideOffset)
         ui.endPivotRotation(thisRotation + 146,sidePivot)
         ui.beginRotation()
         ui.beginRotation()
-        display.rect {
-            -- draws rectangle
-             pos = vec2(sidePos.x+5, sidePos.y-5),
-            size = vec2(7, 115),
-            color = rgbm(1,1,1,1)
-        }
+        display.rect {pos = vec2(sidePos.x+5, sidePos.y-5), size = vec2(7, 115), color = rgbm(1,1,1,1)}
         ui.endRotation(35)
         ui.endPivotRotation(maxRotation + 145.5,sidePivot)
     end
 
-    
-
-
     display.image{image ="MFD.png",pos = vec2(sideOffset+125,70),size = mfdSize,color = rgbm(1,1,1,1), uvStart = vec2(440/1536,520/1210),uvEnd = vec2(872/1536, 1024/1210)} --4th gauge
-    display.image{image ="MFD.png",pos = vec2(sideOffset+330,240),size = vec2(90,70),color = rgbm(1,1,1,1), uvStart = vec2(1416/1536,282/1210),uvEnd = vec2(1530/1536, 374/1210)} --turbo icon
-   
+    display.image{image ="MFD.png",pos = vec2(sideOffset+330,240),size = vec2(90,70),color = rgbm(1,1,1,1), uvStart = vec2(1416/1536,282/1210),uvEnd = vec2(1530/1536, 374/1210)} --turbo icon 
     
     if car.turboBoost < 0.12 then --christ, this sucks so much
         displayedPressure = -350 + math.saturate(car.gas)*3.50
@@ -622,12 +731,7 @@ function drawOilTempGauge(sidePivot, sidePos, sideOffset)
         ui.beginRotation()
         ui.beginRotation()
         if gaugeTail then
-            display.rect {
-                -- draws rectangle
-                pos = sidePos,
-                size = vec2(21, 120),
-                color = getBarColor(car.oilTemperature,tresholdValues["oilT"])
-            }
+            display.rect {pos = sidePos, size = vec2(21, 120), color = getBarColor(car.oilTemperature,tresholdValues[3])}
         end
         if i==80 then
             display.rect {pos = sidePos,size = vec2(7, 120),color = rgbm(1,0,0,1)}
@@ -667,45 +771,7 @@ function drawOilTempGauge(sidePivot, sidePos, sideOffset)
 end
 
 
-local throttleIndex = 1
 
-function fillTable(yVal)
-    return {
-    vec2(465.0,yVal),vec2(463.85,yVal),vec2(462.7,yVal),vec2(461.55,yVal),vec2(460.4,yVal),vec2(459.25,yVal),vec2(458.1,yVal),vec2(456.95,yVal),vec2(455.8,yVal),vec2(454.65,yVal),
-    vec2(453.5,yVal),vec2(452.35,yVal),vec2(451.2,yVal),vec2(450.05,yVal),vec2(448.9,yVal),vec2(447.75,yVal),vec2(446.6,yVal),vec2(445.45,yVal),vec2(444.3,yVal),vec2(443.15,yVal),
-    vec2(442.0,yVal),vec2(440.85,yVal),vec2(439.7,yVal),vec2(438.55,yVal),vec2(437.4,yVal),vec2(436.25,yVal),vec2(435.1,yVal),vec2(433.95,yVal),vec2(432.8,yVal),vec2(431.65,yVal),
-    vec2(430.5,yVal),vec2(429.35,yVal),vec2(428.2,yVal),vec2(427.05,yVal),vec2(425.9,yVal),vec2(424.75,yVal),vec2(423.6,yVal),vec2(422.45,yVal),vec2(421.3,yVal),vec2(420.15,yVal),
-    vec2(419.0,yVal),vec2(417.85,yVal),vec2(416.7,yVal),vec2(415.55,yVal),vec2(414.4,yVal),vec2(413.25,yVal),vec2(412.1,yVal),vec2(410.95,yVal),vec2(409.8,yVal),vec2(408.65,yVal),
-    vec2(407.5,yVal),vec2(406.35,yVal),vec2(405.2,yVal),vec2(404.05,yVal),vec2(402.9,yVal),vec2(401.75,yVal),vec2(400.6,yVal),vec2(399.45,yVal),vec2(398.3,yVal),vec2(397.15,yVal),
-    vec2(396.0,yVal),vec2(394.85,yVal),vec2(393.7,yVal),vec2(392.55,yVal),vec2(391.4,yVal),vec2(390.25,yVal),vec2(389.1,yVal),vec2(387.95,yVal),vec2(386.8,yVal),vec2(385.65,yVal),
-    vec2(384.5,yVal),vec2(383.35,yVal),vec2(382.2,yVal),vec2(381.05,yVal),vec2(379.9,yVal),vec2(378.75,yVal),vec2(377.6,yVal),vec2(376.45,yVal),vec2(375.3,yVal),vec2(374.15,yVal),
-    vec2(373.0,yVal),vec2(371.85,yVal),vec2(370.7,yVal),vec2(369.55,yVal),vec2(368.4,yVal),vec2(367.25,yVal),vec2(366.1,yVal),vec2(364.95,yVal),vec2(363.8,yVal),vec2(362.65,yVal),
-    vec2(361.5,yVal),vec2(360.35,yVal),vec2(359.2,yVal),vec2(358.05,yVal),vec2(356.9,yVal),vec2(355.75,yVal),vec2(354.6,yVal),vec2(353.45,yVal),vec2(352.3,yVal),vec2(351.15,yVal),
-    vec2(350.0,yVal),vec2(348.85,yVal),vec2(347.7,yVal),vec2(346.55,yVal),vec2(345.4,yVal),vec2(344.25,yVal),vec2(343.1,yVal),vec2(341.95,yVal),vec2(340.8,yVal),vec2(339.65,yVal),
-    vec2(338.5,yVal),vec2(337.35,yVal),vec2(336.2,yVal),vec2(335.05,yVal),vec2(333.9,yVal),vec2(332.75,yVal),vec2(331.6,yVal),vec2(330.45,yVal),vec2(329.3,yVal),vec2(328.15,yVal),
-    vec2(327.0,yVal),vec2(325.85,yVal),vec2(324.7,yVal),vec2(323.55,yVal),vec2(322.4,yVal),vec2(321.25,yVal),vec2(320.1,yVal),vec2(318.95,yVal),vec2(317.8,yVal),vec2(316.65,yVal),
-    vec2(315.5,yVal),vec2(314.35,yVal),vec2(313.2,yVal),vec2(312.05,yVal),vec2(310.9,yVal),vec2(309.75,yVal),vec2(308.6,yVal),vec2(307.45,yVal),vec2(306.3,yVal),vec2(305.15,yVal),
-    vec2(304.0,yVal),vec2(302.85,yVal),vec2(301.7,yVal),vec2(300.55,yVal),vec2(299.4,yVal),vec2(298.25,yVal),vec2(297.1,yVal),vec2(295.95,yVal),vec2(294.8,yVal),vec2(293.65,yVal),
-    vec2(292.5,yVal),vec2(291.35,yVal),vec2(290.2,yVal),vec2(289.05,yVal),vec2(287.9,yVal),vec2(286.75,yVal),vec2(285.6,yVal),vec2(284.45,yVal),vec2(283.3,yVal),vec2(282.15,yVal),
-    vec2(281.0,yVal),vec2(279.85,yVal),vec2(278.7,yVal),vec2(277.55,yVal),vec2(276.4,yVal),vec2(275.25,yVal),vec2(274.1,yVal),vec2(272.95,yVal),vec2(271.8,yVal),vec2(270.65,yVal),
-    vec2(269.5,yVal),vec2(268.35,yVal),vec2(267.2,yVal),vec2(266.05,yVal),vec2(264.9,yVal),vec2(263.75,yVal),vec2(262.6,yVal),vec2(261.45,yVal),vec2(260.3,yVal),vec2(259.15,yVal),
-    vec2(258.0,yVal),vec2(256.85,yVal),vec2(255.7,yVal),vec2(254.55,yVal),vec2(253.4,yVal),vec2(252.25,yVal),vec2(251.1,yVal),vec2(249.95,yVal),vec2(248.8,yVal),vec2(247.65,yVal),
-    vec2(246.5,yVal),vec2(245.35,yVal),vec2(244.2,yVal),vec2(243.05,yVal),vec2(241.9,yVal),vec2(240.75,yVal),vec2(239.6,yVal),vec2(238.45,yVal),vec2(237.3,yVal),vec2(236.15,yVal),
-    vec2(235.0,yVal),vec2(233.85,yVal),vec2(232.7,yVal),vec2(231.55,yVal),vec2(230.4,yVal),vec2(229.25,yVal),vec2(228.1,yVal),vec2(226.95,yVal),vec2(225.8,yVal),vec2(224.65,yVal),
-    vec2(223.5,yVal),vec2(222.35,yVal),vec2(221.2,yVal),vec2(220.05,yVal),vec2(218.9,yVal),vec2(217.75,yVal),vec2(216.6,yVal),vec2(215.45,yVal),vec2(214.3,yVal),vec2(213.15,yVal),
-    vec2(212.0,yVal),vec2(210.85,yVal),vec2(209.7,yVal),vec2(208.55,yVal),vec2(207.4,yVal),vec2(206.25,yVal),vec2(205.1,yVal),vec2(203.95,yVal),vec2(202.8,yVal),vec2(201.65,yVal),
-    vec2(200.5,yVal),vec2(199.35,yVal),vec2(198.2,yVal),vec2(197.05,yVal),vec2(195.9,yVal),vec2(194.75,yVal),vec2(193.6,yVal),vec2(192.45,yVal),vec2(191.3,yVal),vec2(190.15,yVal),
-    vec2(189.0,yVal),vec2(187.85,yVal),vec2(186.7,yVal),vec2(185.55,yVal),vec2(184.4,yVal),vec2(183.25,yVal),vec2(182.1,yVal),vec2(180.95,yVal),vec2(179.8,yVal),vec2(178.65,yVal),
-    vec2(177.5,yVal),vec2(176.35,yVal),vec2(175.2,yVal),vec2(174.05,yVal),vec2(172.9,yVal),vec2(171.75,yVal),vec2(170.6,yVal),vec2(169.45,yVal),vec2(168.3,yVal),vec2(167.15,yVal),
-    vec2(166.0,yVal),vec2(164.85,yVal),vec2(163.7,yVal),vec2(162.55,yVal),vec2(161.4,yVal),vec2(160.25,yVal),vec2(159.1,yVal),vec2(157.95,yVal),vec2(156.8,yVal),vec2(155.65,yVal),
-    vec2(154.5,yVal),vec2(153.35,yVal),vec2(152.2,yVal),vec2(151.05,yVal),vec2(149.9,yVal),vec2(148.75,yVal),vec2(147.6,yVal),vec2(146.45,yVal),vec2(145.3,yVal),vec2(144.15,yVal),
-    vec2(143.0,yVal),vec2(141.85,yVal),vec2(140.7,yVal),vec2(139.55,yVal),vec2(138.4,yVal),vec2(137.25,yVal),vec2(136.1,yVal),vec2(134.95,yVal),vec2(133.8,yVal),vec2(132.65,yVal),
-    vec2(131.5,yVal),vec2(130.35,yVal),vec2(129.2,yVal),vec2(128.05,yVal),vec2(126.9,yVal),vec2(125.75,yVal),vec2(124.6,yVal),vec2(123.45,yVal),vec2(122.3,yVal),vec2(121.15,yVal)
-    }
-end
-
-
-local boostVals = fillTable(332)
 setInterval(function()
 
     boostVals[1].y = math.max(75,332-(31.5*(math.floor(math.abs(car.turboBoost)*8))))
@@ -720,8 +786,6 @@ setInterval(function()
     end
 end
 ,0.1)
-
-
 
 function drawTurboGraph() 
 
@@ -763,7 +827,6 @@ function drawTurboGraph()
  
 end
 
-local throttleVals = fillTable(399)
 setInterval(function()
     throttleVals[1].y = math.max(0,399-(324*car.gas)) 
     for i = 1, 299,2 do
@@ -809,7 +872,6 @@ function drawThrottleGraph()
     end 
 end
 
-local idcVals = fillTable(399)
 setInterval(function()
     idcVals[1].y = math.max(0,399-(3.24*idcLevel(car.rpm)))   
     for i = 1, 299,2 do
@@ -859,7 +921,6 @@ function drawIDCGraph()
     end 
 end
 
-local voltVals = fillTable(399)
 setInterval(function()
    
     voltVals[1].y = math.max(0,399-(3.24*(((car.batteryVoltage-8)*100)/8)))
@@ -910,7 +971,6 @@ function drawVoltGraph()
     end 
 end
 
-local torqueVals = fillTable(399)
 setInterval(function()
    
     torqueVals[1].y = math.max(0,399-(0.399*math.abs(car.drivetrainTorque)))
@@ -963,7 +1023,6 @@ function drawFTorqueGraph()
     end 
 end
 
-local oilVals = fillTable(399)
 setInterval(function()  
     oilVals[1].y = math.max(0,399-(3.24*13+(((car.oilTemperature-80)*100)/80)))
     for i = 1, 299,2 do
@@ -1011,7 +1070,6 @@ function drawOilTempGraph()
     end 
 end
 
-local exhVals = fillTable(399)
 setInterval(function()  
     exhVals[1].y = math.max(0,399-0.324*car.exhaustTemperature)
     for i = 1, 299,2 do
@@ -1060,7 +1118,6 @@ function drawExhGraph()
     end 
 end
 
-local intVals = fillTable(399)
 setInterval(function()  
     intVals[1].y = math.max(0,399-3.24*car.exhaustTemperature/10)
     for i = 1, 299,2 do
@@ -1108,22 +1165,6 @@ function drawIntGraph()
         ui.drawLine(intVals[i-1], intVals[i], rgbm(0,1,0,1),1)
     end 
 end
-
-local modeNumber = 1 --starts in Bar Menu
-local isMenuActive = false
-local isSelectActive = false
-local isShiftActive = false
-local isRedActive = false
-
-local menuOptions = {1,0,0}
-local menu1Options = {0,1,0}
-local activeMenu = {"SELECT","RED ZONE", "SHIFT UP"}
-local currentActiveMenu = "SELECT"
-
-local selectedMode3 = {{1,0,0,0},{0,0,0,0}}
-local activeMode3 = {{"BOOST","OIL-TEMP","F-TORQUE","VOLT"},{"THROTTLE","INJECTOR","EXH-TEMP","INT-TEMP"}}
-local currentActive = "BOOST"
-
 
 function drawSelectMenu()
     display.text{pos = vec2(40, 5), letter = vec2(65,45), spacing = -32,text="SELECT", font = "Microsquare", color= rgbm(1,1,1,1)}
@@ -1287,11 +1328,8 @@ function drawMenuMode()
         elseif menuOptions[i] == 0 then
             ui.drawRect(vec2(-170+(220*i),-121+215),vec2(8+(220*i),49+215),rgbm(0,0.01,0.09,1),10,15,20)        
         end
-        --if i==1 and isGreyedOut then
-        --    display.image{image ="MFD.png",pos = vec2(-173+(220*i),-121.5+215),size = vec2(185,175),color = rgbm(1,1,1,1), uvStart = vec2((600+185*(i-2))/1536,1025/1210),uvEnd = vec2((785+185*(i-2))/1536, 1210/1210)}
-        --else
-            display.image{image ="MFD.png",pos = vec2(-173+(220*i),-121.5+215),size = vec2(185,175),color = rgbm(1,1,1,1), uvStart = vec2((600+185*(i-1))/1536,1025/1210),uvEnd = vec2((785+185*(i-1))/1536, 1210/1210)}
-        --end
+
+        display.image{image ="MFD.png",pos = vec2(-173+(220*i),-121.5+215),size = vec2(185,175),color = rgbm(1,1,1,1), uvStart = vec2((600+185*(i-1))/1536,1025/1210),uvEnd = vec2((785+185*(i-1))/1536, 1210/1210)}
     
     end
 
@@ -1313,11 +1351,11 @@ function drawMenuMode()
 end
 
 function drawMenu1Mode()
+
     display.text{pos = vec2(50, 0), letter = vec2(60,50), spacing = -22,text="MENU", font = "Microsquare", color= rgbm(1,1,1,1)}
     display.text{pos = vec2(40, 50), letter = vec2(50,40), spacing = -20,text="SELECT", font = "Microsquare", color= rgbm(1,1,1,1)}
     display.text{pos = vec2(250, 50), letter = vec2(45,40), spacing = -20,text="RED ZONE", font = "Microsquare", color= rgbm(1,1,1,1)}
     display.text{pos = vec2(475, 50), letter = vec2(45,40), spacing = -20,text="SHIFT UP", font = "Microsquare", color= rgbm(1,1,1,1)}
-
 
     if btnRight() or btnLeft() then    
         for i=2,3 do
@@ -1358,28 +1396,17 @@ function drawMenu1Mode()
     end
 
     if btnMid() then
-        
-        
         if menu1Options[2] == 1 then
             currentActiveMenu = activeMenu[2]
             isRedActive = true
-            
-        
         elseif menu1Options[3] == 1 then
             currentActiveMenu = activeMenu[3]
-            
-            isShiftActive = true
-            
+            isShiftActive = true    
         end
-        isMenuActive = false
-        
+        isMenuActive = false     
     end
-
 end
 
-local j = 3
-local tresholds = {5000,6000,7000,8000,9000,10000}
-local shiftTreshold=8000
 function drawShiftMenu()
     display.text{pos = vec2(50,0), letter = vec2(60,50), spacing = -22,text="SHIFT UP", font = "Microsquare", color= rgbm(1,1,1,1)}
     display.image{image ="MFD.png",pos = vec2(320,85),size = vec2(350,350),color = rgbm(1,1,1,1), uvStart = vec2(896/1536,151/1210),uvEnd = vec2(1266/1536, 521/1210)}
@@ -1397,25 +1424,25 @@ function drawShiftMenu()
     display.text{pos = vec2(185,400), letter = vec2(30,40), spacing = -10,text="x1000", font = "c7_mid", color= rgbm(1,1,1,1)}
     display.text{pos = vec2(185,430), letter = vec2(30,40), spacing = -15,text="rl min", font = "c7_mid", color= rgbm(1,1,1,1)}
     display.text{pos = vec2(164,413), letter = vec2(20,40), spacing = 12,text="[   ]", font = "c7_mid", color= rgbm(1,1,1,1)}
-    local shiftPercentage = j*20 -- conversion to %
+    local shiftPercentage = currentShiftTreshold*20 -- conversion to %
   
     if btnUp() then
-        if j<5 then
-            j = j+1
+        if currentShiftTreshold<5 then
+            currentShiftTreshold = currentShiftTreshold+1
         end
     elseif btnDown() then
-        if j>0 then
-            j = j-1
+        if currentShiftTreshold>0 then
+            currentShiftTreshold = currentShiftTreshold-1
         end
     elseif btnMid() then
         isShiftActive = false
-        shiftTreshold = tresholds[j+1]
+        shiftTreshold = tresholds[currentShiftTreshold+1]
     elseif btnMenu() or btnReturn() then -- if return or menu button were pressed, return to selection menu
         isShiftActive = false
         isMenuActive = true
     end
     
-    if j ~= 0 then
+    if currentShiftTreshold ~= 0 then
         for i = 0, 65 do
             local thisRotation = (-shiftPercentage) * 2.697 -- "-" turns rotation counter clockwise
             ui.beginRotation()
@@ -1450,15 +1477,11 @@ function drawShiftMenu()
 
 end
 
-local activeRed = {true, false, false, false, false, false, false}
-local redColors = {rgbm(1,1,0,1),rgbm(1,1,1,1),rgbm(1,1,1,1),rgbm(1,1,1,1),rgbm(1,1,1,1)}
-
 function drawRedMenu()
     local redText = {"BOOST", "INJECTOR", "OIL-TEMP", "W-TEMP", "EXH-TEMP"}
     
     basex=165
     basey=80
-
 
     display.text{pos = vec2(35,10), letter = vec2(60,60), spacing = -22,text="RED ZONE", font = "Microsquare", color= rgbm(1,1,1,1)}
 
@@ -1558,73 +1581,72 @@ function drawRedMenu()
         for i=1,5 do
             
             if i == 1 and activeRed[1] then --hacky but it works
-                if btnRight() and tresholdValues["boost"] < 1.2 then
-                    tresholdValues["boost"] = tresholdValues["boost"] + 0.2
-                elseif btnLeft() and tresholdValues["boost"] > -0.6 then
-                    tresholdValues["boost"] = tresholdValues["boost"] - 0.2
+                if btnRight() and tresholdValues[1] < 1.2 then
+                    tresholdValues[1] = tresholdValues[1] + 0.2
+                elseif btnLeft() and tresholdValues[1] > -0.6 then
+                    tresholdValues[1] = tresholdValues[1] - 0.2
                 end
             elseif i == 2 and activeRed[2] then
-                if btnRight() and tresholdValues["injector"] < 100 then
-                    tresholdValues["injector"] = tresholdValues["injector"] + 5
-                elseif btnLeft() and tresholdValues["injector"] > 0 then
-                    tresholdValues["injector"] = tresholdValues["injector"] - 5
+                if btnRight() and tresholdValues[2] < 100 then
+                    tresholdValues[2] = tresholdValues[2] + 5
+                elseif btnLeft() and tresholdValues[2] > 0 then
+                    tresholdValues[2] = tresholdValues[2] - 5
                 end
             elseif i == 3 and activeRed[3] then
-                if btnRight() and tresholdValues["oilT"] < 150 then
-                    tresholdValues["oilT"] = tresholdValues["oilT"] + 5
-                elseif btnLeft() and tresholdValues["oilT"] > 0 then
-                    tresholdValues["oilT"] = tresholdValues["oilT"] - 5
+                if btnRight() and tresholdValues[3] < 150 then
+                    tresholdValues[3] = tresholdValues[3] + 5
+                elseif btnLeft() and tresholdValues[3] > 0 then
+                    tresholdValues[3] = tresholdValues[3] - 5
                 end
             elseif i == 4 and activeRed[4] then
-                if btnRight() and tresholdValues["waterT"] < 150 then
-                    tresholdValues["waterT"] = tresholdValues["waterT"] + 5
-                elseif btnLeft() and tresholdValues["waterT"] > 0 then
-                    tresholdValues["waterT"] = tresholdValues["waterT"] - 5
+                if btnRight() and tresholdValues[4] < 150 then
+                    tresholdValues[4] = tresholdValues[4] + 5
+                elseif btnLeft() and tresholdValues[4] > 0 then
+                    tresholdValues[4] = tresholdValues[4] - 5
                 end
             elseif i == 5 and activeRed[5] then
-                if btnRight() and tresholdValues["exhT"] < 1000 then
-                    tresholdValues["exhT"] = tresholdValues["exhT"] + 25
-                elseif btnLeft() and tresholdValues["exhT"] > 0 then
-                    tresholdValues["exhT"] = tresholdValues["exhT"] - 25
+                if btnRight() and tresholdValues[5] < 1000 then
+                    tresholdValues[5] = tresholdValues[5] + 25
+                elseif btnLeft() and tresholdValues[5] > 0 then
+                    tresholdValues[5] = tresholdValues[5] - 25
                 end
             end
         end
     end
     
-
-    display.text{width=205,pos = vec2(605, 90),alignment=1, letter = vec2(40, 35), spacing = -18,text=string.format("%.2f", tresholdValues["boost"]), font = "Microsquare", color= rgbm(1,1,1,1)}
+    display.text{width=205,pos = vec2(605, 90),alignment=1, letter = vec2(40, 35), spacing = -18,text=string.format("%.2f", tresholdValues[1]), font = "Microsquare", color= rgbm(1,1,1,1)}
     display.text{pos = vec2(845, 85), letter = vec2(30, 50), spacing = -10,text="kPa", font = "c7_mid", color= rgbm(1,1,1,1)}
     display.text{pos = vec2(802, 85), letter = vec2(15, 30), spacing = -3,text="x100", font = "c7_mid", color= rgbm(1,1,1,1)}
 
-    displayPercentageCustomInput(tresholdValues["injector"],155)
-    displayCelsiusCustomInput(tresholdValues["waterT"], 280)
-    displayCelsiusCustomInput(tresholdValues["oilT"], 215)
-    displayCelsiusCustomInput(tresholdValues["exhT"], 345)
+    displayPercentageCustomInput(tresholdValues[2],155)
+    displayCelsiusCustomInput(tresholdValues[4], 280)
+    displayCelsiusCustomInput(tresholdValues[3], 215)
+    displayCelsiusCustomInput(tresholdValues[5], 345)
 
-    boostRect = ((tresholdValues["boost"]+0.6)*10/1.8)*29
+    boostRect = ((tresholdValues[1]+0.6)*10/1.8)*29
     ui.drawRectFilled(vec2(basex+110+boostRect,85),vec2(basex+110+boostRect+5,130),rgbm(1,0,0,1))
 
-    injectorRect = tresholdValues["injector"] *2.9 
+    injectorRect = tresholdValues[2] *2.9 
     ui.drawRectFilled(vec2(basex+110+injectorRect,150),vec2(basex+110+injectorRect+5,195),rgbm(1,0,0,1))
 
-    oilTRect = (tresholdValues["oilT"]/1.5)*2.9
+    oilTRect = (tresholdValues[3]/1.5)*2.9
     ui.drawRectFilled(vec2(basex+110+oilTRect,215),vec2(basex+110+oilTRect+5,260),rgbm(1,0,0,1))
 
-    waterTRect = (tresholdValues["waterT"]/1.5)*2.9
+    waterTRect = (tresholdValues[4]/1.5)*2.9
     ui.drawRectFilled(vec2(basex+110+waterTRect,280),vec2(basex+110+waterTRect+5,325),rgbm(1,0,0,1))
 
-    exhTRect =  tresholdValues["exhT"]*0.29
+    exhTRect =  tresholdValues[5]*0.29
     ui.drawRectFilled(vec2(basex+110+exhTRect,345),vec2(basex+110+exhTRect+5,390),rgbm(1,0,0,1))
 
     if btnMid() then
         if activeRed[6] then
             isRedActive=false
         elseif activeRed[7] then --reset
-            tresholdValues["boost"] = 1
-            tresholdValues["injector"] = 75
-            tresholdValues["oilT"] = 120
-            tresholdValues["waterT"] = 120
-            tresholdValues["exhT"] = 875
+            tresholdValues[1] = 1
+            tresholdValues[2] = 75
+            tresholdValues[3] = 120
+            tresholdValues[4] = 120
+            tresholdValues[5] = 875
         end
     end
 
@@ -1634,13 +1656,6 @@ function drawRedMenu()
     end
 
 end
-
-local activeDisplay = {true,false,false,false}
-local autoDimming = false
-local brightnessAdjustment = false
-local isScreenOn = true
-local screenBrightness = 0.5
-
 
 function drawDisplayMenu()
     display.rect{pos= vec2(600,0), size= vec2(940,490), color= rgbm(0,0.01,0.09,1)}
@@ -1694,8 +1709,6 @@ function drawDisplayMenu()
         display.image{image ="MFD.png",pos = vec2(620,100+90*i),size = vec2(290,85),color = rgbm(1,1,1,1), uvStart = vec2(985/1536,76/1210),uvEnd = vec2(1144/1536, 146/1210)}
     end
 
-
-
     if autoDimming then
         display.image{image ="MFD.png",pos = vec2(615,116),size = vec2(340,45),color = rgbm(1,1,1,1), uvStart = vec2(0/1536,1101/1210),uvEnd = vec2(233/1536, 1141/1210)}
     else
@@ -1739,12 +1752,6 @@ function drawDisplayMenu()
         display.image{image ="MFD.png",pos = vec2(538,362),size = vec2(80,80),color = rgbm(1,1,1,1), uvStart = vec2(290/1536,1036/1210),uvEnd = vec2(325/1536, 1085/1210)}
     end
 end
-
-
-local twinSelection= {{1,0},{0,0},{0,0}}
-local currentTwin = {{"BOOST","OIL-TEMP"},{"NONE","NONE"},{"NONE","NONE"},{"NONE","NONE"}}
-local twinCoords = {{vec2(197,140),vec2(330,140)}, {vec2(197,300),vec2(330,300)}, {vec2(597,140),vec2(730,140)}, {vec2(597,300),vec2(730,300)}}
-local currentDisplayed = {"BOOST","OIL-TEMP"}
 
 function drawTwinIcons()
     for i=1,4 do
@@ -1790,21 +1797,6 @@ function drawTwinIcon(icon,pos)
     end
     
 end
-
-local currentTwinSetup = {0,1,0,0,0}
-local changedTwins = {0,0,0,0}
-local twinTextColor = rgbm(1,1,1,1)
-local activeIcon = {{0,0},{0,0},{0,0}}
-local isSelectingGauges = false
-local isSelectingTwin = false
-local isSelectingSide = false
-local isSelectingLeft = false
-local isSelectingRight = false
-local hasSelectedLeft = false
-local hasSelectedRight = false
-local colorMode = true
-local selectingColor = rgbm(0,1,0,0)
-local currentTwinNo = 1
 
 setInterval(function()  --blinking green twin menu color
     if isSelectingGauges or isSelectingSide then
@@ -1989,12 +1981,14 @@ function drawTwinSetupMenu()
                         isSelectingGauges = false
                         currentTwin[currentTwinNo][1] = buttonText[i][j]
                         hasSelectedLeft = true
+                        --storedValues.currentTwin = storagePackNested(currentTwin)
                         goto continue 
                     elseif btnMid() and isSelectingRight then
                         isSelectingSide = true
                         isSelectingGauges = false
                         currentTwin[currentTwinNo][2] = buttonText[i][j]
                         hasSelectedRight = true
+                        --storedValues.currentTwin = storagePackNested(currentTwin)
                         goto continue 
                     end
                     activeIcon[i][j] = 0
@@ -2098,7 +2092,7 @@ function drawTwinMenu()
                     isSelectingTwin = true
                 elseif twinSelection[j][i] == 1 then
                     if j == 1 and i == 1 then --twin 1
-                        currentDisplayed = currentTwin[1]
+                        currentDisplayed = currentTwin[1] 
                     elseif j == 2 and i == 1 then --twin 2
                         currentDisplayed = currentTwin[2]
                     elseif j == 1 and i == 2 then --twin 3
@@ -2129,10 +2123,7 @@ function drawTwinMenu()
     display.image{image ="MFD.png",pos = vec2(150,270),size = vec2(300,120),color = rgbm(1,1,1,1), uvStart = vec2(1153/1536,1024/1210),uvEnd = vec2(1536/1536, 1210/1210)}
     display.image{image ="MFD.png",pos = vec2(550,110),size = vec2(300,120),color = rgbm(1,1,1,1), uvStart = vec2(1153/1536,1024/1210),uvEnd = vec2(1536/1536, 1210/1210)}
     display.image{image ="MFD.png",pos = vec2(550,270),size = vec2(300,120),color = rgbm(1,1,1,1), uvStart = vec2(1153/1536,1024/1210),uvEnd = vec2(1536/1536, 1210/1210)}
-
     display.image{image ="MFD.png",pos = vec2(139,400),size = vec2(314,85),color = rgbm(1,1,1,1), uvStart = vec2(985/1536,76/1210),uvEnd = vec2(1144/1536, 146/1210)}
-
-
     display.image{image ="MFD.png",pos = vec2(177,399),size = vec2(250,80),color = rgbm(1,1,1,1), uvStart = vec2(14/1536,1020/1210),uvEnd = vec2(110/1536, 1060/1210)}
 end
 
@@ -2169,8 +2160,8 @@ function drawTwins() --drawing the gauges
 end
 
 function modeBehaviour()
-    if btnMode() and not isMenuActive then --only changing mode if the menu isn't opened
-        modeNumber = modeNumber+1
+    if btnMode() and not isMenuActive and not isShiftActive and not isRedActive and not isSelectActive then --only changing mode if the menu isn't opened
+        modeNumber = modeNumber + 1
         if modeNumber == 4 then
             modeNumber=1
         end
@@ -2234,19 +2225,14 @@ function shiftLightBehaviour()
     end
 end
 
-
-
-local switchOver = false
-setInterval(function()  --switches to bar menu for 1 second if sensor limit was exceeded
-    
+setInterval(function()  --switches to bar menu for 1 second if sensor limit was exceeded  
     if
-    getBarColor(car.exhaustTemperature,tresholdValues["exhT"]) == rgbm(1,0,0,1) or 
-    getBarColor(idcLevel(car.rpm),tresholdValues["injector"]) == rgbm(1,0,0,1) or
-    getBarColor(2*math.floor(car.turboBoost*100)/100-0.3, tresholdValues["boost"]) == rgbm(1,0,0,1) or 
-    getBarColor(car.oilTemperature,tresholdValues["oilT"]) == rgbm(1,0,0,1) or 
-    getBarColor(car.waterTemperature,tresholdValues["waterT"]) == rgbm(1,0,0,1) or 
-    getBarColor(car.exhaustTemperature,tresholdValues["exhT"])	 == rgbm(1,0,0,1) then
-        
+    getBarColor(car.exhaustTemperature,tresholdValues[5]) == rgbm(1,0,0,1) or 
+    getBarColor(idcLevel(car.rpm),tresholdValues[2]) == rgbm(1,0,0,1) or
+    getBarColor(2*math.floor(car.turboBoost*100)/100-0.3, tresholdValues[1]) == rgbm(1,0,0,1) or 
+    getBarColor(car.oilTemperature,tresholdValues[3]) == rgbm(1,0,0,1) or 
+    getBarColor(car.waterTemperature,tresholdValues[4]) == rgbm(1,0,0,1) or 
+    getBarColor(car.exhaustTemperature,tresholdValues[5])	 == rgbm(1,0,0,1) then  
         switchOver = true  
     else
         switchOver = false
@@ -2262,22 +2248,29 @@ function detectSwitchover()
 end
 
 function autoDimBehaviour()
-    
     if autoDimming then
-        display.rect{pos= vec2(0,0), size= vec2(940,490), color= rgbm(0,0.01,0.09,math.min(sim.timeHours/24,0.65))}
-        
+        display.rect{pos= vec2(0,0), size= vec2(940,490), color= rgbm(0,0.01,0.09,math.min(sim.timeHours/24,0.65))}      
     elseif brightnessAdjustment then
         display.rect{pos= vec2(0,0), size= vec2(940,490), color= rgbm(0,0.01,0.09,0.5-screenBrightness)}
     end
-
-
 end
 
-local booted = false
-local bootup = ui.MediaPlayer()
-bootup:setSource('bootup.mp4'):setAutoPlay(true)
+function saveState() --saves everything (even though it runs every frame, it only saves if changes are detected)
+    storedValues.currentTwin = storagePackNested(currentTwin) 
+    storedValues.currentDisplayed = storagePack(currentDisplayed)
+    storedValues.currentActiveMenu = currentActiveMenu
+    storedValues.currentActive = currentActive
+    storedValues.shiftTreshold = shiftTreshold
+    storedValues.tresholdValues = storagePack(tresholdValues)
+    storedValues.autoDimming = autoDimming
+    storedValues.brightnessAdjustment = brightnessAdjustment
+    storedValues.gaugeTail = gaugeTail
+    storedValues.isScreenOn = isScreenOn
+    storedValues.screenBrightness = screenBrightness
+end
 
 function update(dt)
+    
     if not isScreenOn then
         display.rect{pos= vec2(0,0), size= vec2(940,490), color= rgbm(0,0,0,1)}
         if btnMid() or btnDisp() then
@@ -2336,7 +2329,7 @@ function update(dt)
                 drawDisplayMenu()
             end
             autoDimBehaviour()
-    
+            saveState()
             --drawRedMenu()
             --drawShiftMenu()
             --drawSelectMenu()
@@ -2344,6 +2337,10 @@ function update(dt)
         end
     end
 end
+
+
+
+
 
 
   
