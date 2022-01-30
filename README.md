@@ -29,7 +29,7 @@ Stuff that needs to be added to complete the base implementation of the MFD
 - [x] Add anti kai measures
 - [ ] Disable script loading for other cars in 3rd person (probably why mp was tanking?)
 - [ ] Maybe do LUTs for readings
-- [ ] Store saved settings in a way that it persists between sessions 
+- [x] Store saved settings in a way that it persists between sessions 
 
 
 # Gauges
