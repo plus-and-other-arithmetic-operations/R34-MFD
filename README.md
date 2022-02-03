@@ -48,7 +48,6 @@ Stuff that needs to be fixed to finalize the gauge implementation
 - [x] Add toggleable gauge tail
 - [x] Interior temp gauge missing icon
 - [x] Make gauges flash red when maxxed out
-- [ ] Weird needle on oil temp gauge
 - [ ] Draw --- text when below certain threshold
 
 # Graph
@@ -71,7 +70,6 @@ Stuff that needs to make the MFD true to its real life counterpart
 - [x] Correct circular gauge behaviour and layering
 - [x] Change interior temp to intercooler temp
 - [x] Find accurate attesa car variable (not really doable atm)
-- [ ] Find accurate text font
 
 # Misc code improvements
 Stuff that needs to be fixed to make the code more compliant to good practices, run faster, etc.
@@ -80,7 +78,6 @@ Stuff that needs to be fixed to make the code more compliant to good practices, 
 - [x] Fix ilja's mess
 - [x] Figure out greyed out select screen
 - [x] Generalize Menu screen
-- [ ] Select menu font spacing
 - [ ] Port to ks r34 cars
 
 **Credits:**
