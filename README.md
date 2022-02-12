@@ -87,5 +87,4 @@ Stuff that needs to be fixed to make the code more compliant to good practices, 
  >plus#3477: Code;
  >
  >h ell#6726: Textures;
- >
- >mehdi2344#1623: Reference, bug testing, vetting, overall knowledge about the system.
+
