@@ -48,7 +48,7 @@ Stuff that needs to be fixed to finalize the gauge implementation
 - [x] Add toggleable gauge tail
 - [x] Interior temp gauge missing icon
 - [x] Make gauges flash red when maxxed out
-- [ ] Draw --- text when below certain threshold
+- [x] Draw --- text when below certain threshold
 
 # Graph
 Stuff that needs to be fixed to finalize the graph implementation
