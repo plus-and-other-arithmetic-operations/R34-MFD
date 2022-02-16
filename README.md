@@ -29,7 +29,7 @@ Stuff that needs to be added to complete the base implementation of the MFD
 - [x] Add start animation
 - [x] Add dimming (draw opaque rectangle over)
 - [x] TWIN menu
-- [ ] Implement return button
+- [x] Implement return button
 - [x] Add anti kai measures
 - [ ] Disable script loading for other cars in 3rd person (probably why mp was tanking?)
 - [ ] Maybe do LUTs for readings
