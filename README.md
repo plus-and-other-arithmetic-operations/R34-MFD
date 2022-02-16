@@ -31,9 +31,9 @@ Stuff that needs to be added to complete the base implementation of the MFD
 - [x] TWIN menu
 - [x] Implement return button
 - [x] Add anti kai measures
-- [ ] Disable script loading for other cars in 3rd person (probably why mp was tanking?)
-- [ ] Maybe do LUTs for readings
+- [x] Disable script loading for other cars in 3rd person (probably why mp was tanking?)
 - [x] Store saved settings in a way that it persists between sessions 
+- [ ] Maybe do LUTs for readings
 
 
 # Gauges
@@ -78,7 +78,6 @@ Stuff that needs to be fixed to make the code more compliant to good practices, 
 - [x] Fix ilja's mess
 - [x] Figure out greyed out select screen
 - [x] Generalize Menu screen
-- [ ] Port to ks r34 cars
 
 **Credits:**
 
