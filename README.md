@@ -15,6 +15,15 @@ For now, it requires different data.acd files, as it needs to override the shift
 Due to the MFD locally storing the settings, if any bug occurs and the settings get corrupted, you need to manually delete them in `C:\Users\...\Documents\Assetto Corsa\cfg\extension\state\lua\car_script\asc_nissan_r34_nur.ini`
 
 
+# WHAT MAY OR MAY NOT BE DONE IN THE FUTURE
+
+- [ ] LUTs for readings, so they can actually be accurate
+- [ ] Rewrite circular gauges, so they are accurate (red needle is overlaying the grey centre)
+- [ ] Redo a small behaviour innacuracy in the twin setup menu
+
+
+
+
 # TO-DO
 
 # Feature Implementation
@@ -33,7 +42,7 @@ Stuff that needs to be added to complete the base implementation of the MFD
 - [x] Add anti kai measures
 - [x] Disable script loading for other cars in 3rd person (probably why mp was tanking?)
 - [x] Store saved settings in a way that it persists between sessions 
-- [ ] Maybe do LUTs for readings
+
 
 
 # Gauges
