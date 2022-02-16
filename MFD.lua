@@ -1,3 +1,5 @@
+--guardar j shifttreshold
+
 local storedValues = ac.storage{
     currentDisplayed="BOOST/OIL-TEMP",
     currentTwin = "BOOST/OIL-TEMP/NONE/NONE/NONE/NONE/NONE/NONE",
@@ -63,6 +65,14 @@ function storagePackNested(data) --same thing but with nested tables
     return storedString
 end
 
+--stored variables--
+
+local currentTwin = storageUnpackNested(storedValues.currentTwin,8) --current twin menu configuration (all 4)
+local currentDisplayed = storageUnpack(storedValues.currentDisplayed, 2) --current selected twin
+local currentActiveMenu = storedValues.currentActiveMenu --might not need to store this
+local currentActive = storedValues.currentActive --current active gauge + graph combo
+local shiftTreshold = storedValues.shiftTreshold --current shift treshold
+local tresholdValues = storageUnpack(storedValues.tresholdValues,6,true) --current tresholds set in the red menu
 
 --button mapping--
 
@@ -128,15 +138,12 @@ local intVals = fillTable(399)
 
 --twin menu variables--
 
-local currentTwin = storageUnpackNested(storedValues.currentTwin,8) --storing this
-local currentDisplayed = storageUnpack(storedValues.currentDisplayed, 2) --storing this
-
-local twinSelection= {{1,0},{0,0},{0,0}}
+local twinSelection= {{1,0},{0,0},{0,0}} --which of the buttons is being hovered in the main twin menu
 local twinCoords = {{vec2(197,140),vec2(330,140)}, {vec2(197,300),vec2(330,300)}, {vec2(597,140),vec2(730,140)}, {vec2(597,300),vec2(730,300)}}
-local currentTwinSetup = {0,1,0,0,0}
-local changedTwins = {0,0,0,0}
+local currentTwinSetup = {0,1,0,0,0} --which of the 5 buttons is selected in the twin setup menu
+local changedTwins = {0,0,0,0} --which of the 4 twins has been changed, used to draw yellow text
 local twinTextColor = rgbm(1,1,1,1)
-local activeIcon = {{0,0},{0,0},{0,0}}
+local activeIcon = {{0,0},{0,0},{0,0}} 
 local isSelectingGauges = false
 local isSelectingTwin = false
 local isSelectingSide = false
@@ -146,42 +153,38 @@ local hasSelectedLeft = false
 local hasSelectedRight = false
 local colorMode = true
 local selectingColor = rgbm(0,1,0,0)
-local currentTwinNo = 1
+local currentTwinNo = 1 --current twin selected on the setup menu
 
 --menu variables --
 
-local currentActiveMenu = storedValues.currentActiveMenu --storing this
-
-local modeNumber = 1 --starts in Bar Menu
-local isMenuActive = false
-local isSelectActive = false
-local isShiftActive = false
-local isRedActive = false
+local modeNumber = 1 --current mode selected, increments when clicking the button: 1- Bar Menu / 2- TWIN/ 3- Gauge +  Graph combo
+local isMenuActive = false --was the 'menu' button clicked, causing the menu to open?
+local isSelectActive = false --did the user select the 'select' menu?
+local isShiftActive = false  --did the user select the 'shift up' menu?
+local isRedActive = false  --did the user select the 'red zone' menu?
 local menuOptions = {1,0,0}
 local menu1Options = {0,1,0}
 local activeMenu = {"SELECT","RED ZONE", "SHIFT UP"}
 
+--storing prev menu variables (used for return) --
+
+local prevModeNumber = modeNumber
+local prevIsMenuActive = isMenuActive
+local prevIsSelectActive = isSelectActive
+local prevIsShiftActive = isShiftActive
+local prevIsRedActive = isRedActive
 
 -- graph menu variables--
-
-local currentActive = storedValues.currentActive --storing this
 
 local selectedMode3 = {{1,0,0,0},{0,0,0,0}}
 local activeMode3 = {{"BOOST","OIL-TEMP","F-TORQUE","VOLT"},{"THROTTLE","INJECTOR","EXH-TEMP","INT-TEMP"}}
 
-
 --shift mode variables--
-
-local shiftTreshold = storedValues.shiftTreshold --storing this
 
 local currentShiftTreshold = 3
 local tresholds = {5000,6000,7000,8000,9000,10000}
 
-
 -- red menu variables --
-
---local tresholdValues = {["boost"]=1, ["injector"]=75,["oilT"] = 120, ["waterT"] = 120, ["exhT"] = 875,["intT"]=50} --store this?
-local tresholdValues = storageUnpack(storedValues.tresholdValues,6,true)
 
 local activeRed = {true, false, false, false, false, false, false}
 local redColors = {rgbm(1,1,0,1),rgbm(1,1,1,1),rgbm(1,1,1,1),rgbm(1,1,1,1),rgbm(1,1,1,1)}
@@ -224,13 +227,24 @@ function drawMenuBars(basex, basey, sizex, sizey, redMenu)
 end
 
 function drawBarMenuText(starterx)
-    display.text{pos = vec2(starterx, 60), letter = vec2(45, 35), spacing = -15,text = "BOOST", font = "Microsquare", color= rgbm(1,1,1,1)}
-    display.text{pos = vec2(starterx, 120), letter = vec2(40, 35), spacing = -15,text = "THROTTLE", font = "Microsquare", color= rgbm(1,1,1,1)}
-    display.text{pos = vec2(starterx-5, 180), letter = vec2(40, 35), spacing = -15,text = "INJECTOR", font = "Microsquare", color= rgbm(1,1,1,1)}
-    display.text{pos = vec2(starterx, 240), letter = vec2(40, 35), spacing = -15,text = "OIL-TEMP", font = "Microsquare", color= rgbm(1,1,1,1)}
-    display.text{pos = vec2(starterx+5, 300), letter = vec2(40, 35), spacing = -15,text = "W-TEMP", font = "Microsquare", color= rgbm(1,1,1,1)}
-    display.text{pos = vec2(starterx, 360), letter = vec2(40, 35), spacing = -15,text = "EXH-TEMP", font = "Microsquare", color= rgbm(1,1,1,1)}
-    display.text{pos = vec2(starterx, 420), letter = vec2(40, 35), spacing = -15,text = "INT-TEMP", font = "Microsquare", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(starterx, 55), letter = vec2(35,70), spacing = -10,text = "BOOST", font = "MFDArialItallic", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(starterx-5, 115), letter = vec2(35,70), spacing = -11,text = "THROTTLE", font = "MFDArialItallic", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(starterx-5, 175), letter = vec2(35,70), spacing = -11,text = "INJECTOR", font = "MFDArialItallic", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(starterx, 235), letter = vec2(35,70), spacing = -15,text = "OIL", font = "MFDArialItallic", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(starterx+55, 235), letter = vec2(35,70),text = "-", font = "MFDArialItallic", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(starterx+70, 235), letter = vec2(35,70), spacing = -10,text = "TEMP", font = "MFDArialItallic", color= rgbm(1,1,1,1)}
+
+    display.text{pos = vec2(starterx+5, 295), letter = vec2(35,70),text = "W", font = "MFDArialItallic", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(starterx+30, 295), letter = vec2(35,70),text = "-", font = "MFDArialItallic", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(starterx+50, 295), letter = vec2(35,70), spacing = -10,text = "TEMP", font = "MFDArialItallic", color= rgbm(1,1,1,1)}
+    
+    display.text{pos = vec2(starterx, 355), letter = vec2(35,70), spacing = -12,text = "EXH", font = "MFDArialItallic", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(starterx+65, 355), letter = vec2(35,70),text = "-", font = "MFDArialItallic", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(starterx+80, 355), letter = vec2(35,70), spacing = -10,text = "TEMP", font = "MFDArialItallic", color= rgbm(1,1,1,1)}
+
+    display.text{pos = vec2(starterx-5, 415), letter = vec2(35,70), spacing = -12,text = "INT", font = "MFDArialItallic", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(starterx+55, 415), letter = vec2(35,70),text = "-", font = "MFDArialItallic", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(starterx+70, 415), letter = vec2(35,70), spacing = -10,text = "TEMP", font = "MFDArialItallic", color= rgbm(1,1,1,1)}
 end
 
 function idcLevel(rpm)
@@ -268,7 +282,7 @@ function drawBarMenuGreenBars()
     
     displayedPressure = (car.turboBoost+0.3)*10
     maxValues["boost"] = math.max(maxValues["boost"],displayedPressure)
-    boostBar = (maxValues["boost"]+0.3)*15
+    boostBar = math.max(0,(maxValues["boost"]+0.3)*15)
     ui.drawRectFilled(vec2(405,55),vec2(410+displayedPressure*15,100),getBarColor(2*math.floor(car.turboBoost*100)/100-0.3, tresholdValues[1]))
     ui.drawRectFilled(vec2(405+boostBar,55),vec2(405+boostBar+5,100),rgbm(1,1,1,1)) --more optimized than using horizontal bar
 
@@ -289,7 +303,7 @@ function drawBarMenuGreenBars()
     --oil temp bar--
 
     maxValues["oilT"] = math.max(maxValues["oilT"],car.oilTemperature)
-    oilBar = maxValues["oilT"]-70
+    oilBar = math.max(0,maxValues["oilT"]-70)
     ui.drawRectFilled(vec2(405,235),vec2(410+car.oilTemperature-70,280),getBarColor(car.oilTemperature,tresholdValues[3]))
     ui.drawRectFilled(vec2(405+oilBar,235),vec2(405+oilBar+5,280),rgbm(1,1,1,1)) --more optimized than using horizontal bar   
     displayCelsiusCustomInput(car.oilTemperature, 237, true, 70)
@@ -297,14 +311,14 @@ function drawBarMenuGreenBars()
     --water temp bar--
 
     maxValues["waterT"] = math.max(maxValues["waterT"],car.waterTemperature)
-    waterBar = maxValues["waterT"]-70
+    waterBar = math.max(0,maxValues["waterT"]-70)
     ui.drawRectFilled(vec2(405,295),vec2(410+car.waterTemperature-70,340),getBarColor(car.waterTemperature,tresholdValues[4]))
     ui.drawRectFilled(vec2(405+waterBar,295),vec2(405+waterBar+5,340),rgbm(1,1,1,1))
     displayCelsiusCustomInput(car.waterTemperature, 297, true, 70)
 
     --exhaust temp bar--
     maxValues["exhT"] = math.max(maxValues["exhT"],car.exhaustTemperature)
-    exhBar = maxValues["exhT"]*0.29
+    exhBar = math.max(0,maxValues["exhT"]*0.29)
     
     ui.drawRectFilled(vec2(405,355),vec2(410+car.exhaustTemperature*0.29,400),getBarColor(car.exhaustTemperature,tresholdValues[5]))
     ui.drawRectFilled(vec2(405+exhBar,355),vec2(405+exhBar+5,400),rgbm(1,1,1,1))        
@@ -314,7 +328,7 @@ function drawBarMenuGreenBars()
 
     local intercoolerTemp = math.min(car.exhaustTemperature/10, 100) --coding hard limit
     maxValues["intT"] = math.max(maxValues["intT"],car.exhaustTemperature/10)
-    intBar = maxValues["intT"]*2.9
+    intBar = math.max(0,maxValues["intT"]*2.9)
     
     ui.drawRectFilled(vec2(405,415),vec2(410+(intercoolerTemp)*2.8,460),rgbm(0,1,0,1))
     ui.drawRectFilled(vec2(405+intBar,415),vec2(405+intBar+5,460),rgbm(1,1,1,1))    
@@ -348,7 +362,7 @@ function drawBarMenu()
        startery=startery+60
     end
     
-    drawBarMenuText(starterx)
+    drawBarMenuText(starterx+10)
     drawBarMenuGreenBars()
 end
 
@@ -548,9 +562,15 @@ function drawFTorqueGauge(sidePivot, sidePos,sideOffset)
 
     display.image{image ="MFD.png",pos = vec2(sideOffset+128,70),size = mfdSize,color = rgbm(1,1,1,1), uvStart = vec2(0,0),uvEnd = vec2(435/1536, 506/1210)} --1st gauge
     display.image{image ="MFD.png",pos = vec2(sideOffset+310,235),size=vec2(90,70),color = rgbm(1,1,1,1), uvStart = vec2(1416/1536,450/1210),uvEnd = vec2(1530/1536, 542/1210)} -- torque icon
+
     
-    display.text{width=205,pos = vec2(sideOffset+245, 318),alignment=1, letter = vec2(65, 50), spacing = -25,text= math.floor(maxFTorquePercentage/6), font = "Microsquare", color= rgbm(0,0,0,1)}
-    display.text{width=205,pos = vec2(sideOffset+242, 315),alignment=1, letter = vec2(65, 50), spacing = -25,text= math.floor(maxFTorquePercentage/6), font = "Microsquare", color= rgbm(1,1,1,1)}
+    if math.floor(maxFTorquePercentage/6) > 0 then
+        display.text{width=205,pos = vec2(sideOffset+245, 318),alignment=1, letter = vec2(65, 50), spacing = -25,text= math.floor(maxFTorquePercentage/6), font = "Microsquare", color= rgbm(0,0,0,1)}
+        display.text{width=205,pos = vec2(sideOffset+242, 315),alignment=1, letter = vec2(65, 50), spacing = -25,text= math.floor(maxFTorquePercentage/6), font = "Microsquare", color= rgbm(1,1,1,1)}
+    else
+        display.text{width=205,pos = vec2(sideOffset+245, 318),alignment=1, letter = vec2(65, 50), spacing = -25,text= "---", font = "Microsquare", color= rgbm(0,0,0,1)}
+        display.text{width=205,pos = vec2(sideOffset+242, 315),alignment=1, letter = vec2(65, 50), spacing = -25,text= "---", font = "Microsquare", color= rgbm(1,1,1,1)}
+    end
     
     display.text{pos = vec2(sideOffset+250, 385), letter = vec2(50,45), spacing = -20,text="0", font = "Microsquare", color= rgbm(1,1,1,1)}
     display.text{pos = vec2(sideOffset+155, 355), letter = vec2(50,45), spacing = -20,text="2", font = "Microsquare", color= rgbm(1,1,1,1)}
@@ -741,7 +761,7 @@ function drawOilTempGauge(sidePivot, sidePos, sideOffset)
             thisRotation = -(100 / 80 * i) * 2.3
         end
         
-        ui.endPivotRotation(thisRotation + 143, sidePivot)
+        ui.endPivotRotation(thisRotation + 141.2, sidePivot-5)
 
         ui.beginRotation()
         ui.beginRotation()
@@ -755,13 +775,18 @@ function drawOilTempGauge(sidePivot, sidePos, sideOffset)
     
     maxValues["oilT"] = math.max(maxValues["oilT"],car.oilTemperature)
 
-    display.text{width=205,pos = vec2(sideOffset+230, 318),alignment=1, letter = vec2(60, 50), spacing = -25,text=math.floor(maxValues["oilT"]), font = "Microsquare", color= rgbm(0,0,0,1)}
-    display.text{width=205,pos = vec2(sideOffset+230, 315),alignment=1, letter = vec2(60, 50), spacing = -25,text=math.floor(maxValues["oilT"]), font = "Microsquare", color= rgbm(1,1,1,1)}
+    if math.floor(maxValues["oilT"]) > 70 then
+        display.text{width=205,pos = vec2(sideOffset+230, 318),alignment=1, letter = vec2(60, 50), spacing = -25,text=math.floor(maxValues["oilT"]), font = "Microsquare", color= rgbm(0,0,0,1)}
+        display.text{width=205,pos = vec2(sideOffset+230, 315),alignment=1, letter = vec2(60, 50), spacing = -25,text=math.floor(maxValues["oilT"]), font = "Microsquare", color= rgbm(1,1,1,1)}
+    else
+        display.text{width=205,pos = vec2(sideOffset+230, 318),alignment=1, letter = vec2(60, 50), spacing = -25,text="---", font = "Microsquare", color= rgbm(0,0,0,1)}
+        display.text{width=205,pos = vec2(sideOffset+230, 315),alignment=1, letter = vec2(60, 50), spacing = -25,text="---", font = "Microsquare", color= rgbm(1,1,1,1)}
+    end
     
     display.text{pos = vec2(sideOffset+230, 390), letter = vec2(45,40), spacing = -20,text="70", font = "Microsquare", color= rgbm(1,1,1,1)}
     display.text{pos = vec2(sideOffset+140, 360), letter = vec2(45,40), spacing = -20,text="80", font = "Microsquare", color= rgbm(1,1,1,1)}
     display.text{pos = vec2(sideOffset+70, 280), letter = vec2(45,40), spacing = -20,text="90", font = "Microsquare", color= rgbm(1,1,1,1)}
-    display.text{pos = vec2(sideOffset+35, 200), letter = vec2(45,40), spacing = -20,text="100", font = "Microsquare", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(sideOffset+43, 200), letter = vec2(45,40), spacing = -22,text="100", font = "Microsquare", color= rgbm(1,1,1,1)}
     display.text{pos = vec2(sideOffset+60, 110), letter = vec2(45,40), spacing = -20,text="110", font = "Microsquare", color= rgbm(1,1,1,1)}
     display.text{pos = vec2(sideOffset+120, 50), letter = vec2(45,40), spacing = -20,text="120", font = "Microsquare", color= rgbm(1,1,1,1)}
     display.text{pos = vec2(sideOffset+225, 25), letter = vec2(45,40), spacing = -20,text="130", font = "Microsquare", color= rgbm(1,1,1,1)}
@@ -1286,17 +1311,18 @@ function drawGraph()
 end
 
 function handleBootupSequence()
-    if ac.getCarID(0) ~= "asc_nissan_r34_nur" then
+    if not string.find(ac.getCarID(0), "asc_") then
         os.showMessage("hi kai")
     end
 end
 
 function drawMenuMode()
-    display.text{pos = vec2(50, 0), letter = vec2(60,50), spacing = -22,text="MENU", font = "Microsquare", color= rgbm(1,1,1,1)}
-    display.text{pos = vec2(40, 50), letter = vec2(50,40), spacing = -20,text="SELECT", font = "Microsquare", color= rgbm(1,1,1,1)}
-    display.text{pos = vec2(250, 50), letter = vec2(45,40), spacing = -20,text="RED ZONE", font = "Microsquare", color= rgbm(1,1,1,1)}
-    display.text{pos = vec2(475, 50), letter = vec2(45,40), spacing = -20,text="SHIFT UP", font = "Microsquare", color= rgbm(1,1,1,1)}
-
+    display.text{pos = vec2(50, 5), letter = vec2(60,60), spacing = -15,text="MENU", font = "MFDArial", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(55, 50), letter = vec2(40,60), spacing = -15,text="SELECT", font = "MFDArialItallic", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(268, 50), letter = vec2(36,60), spacing = -12,text="RED", font = "MFDArialItallic", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(349, 50), letter = vec2(36,60), spacing = -12,text="ZONE", font = "MFDArialItallic", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(482, 50), letter = vec2(38,60), spacing = -14.5,text="SHIFT", font = "MFDArialItallic", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(610, 50), letter = vec2(38,60), spacing = -15,text="UP", font = "MFDArialItallic", color= rgbm(1,1,1,1)}
 
     if btnRight() or btnLeft() then    
         for i=1,3 do
@@ -1326,7 +1352,7 @@ function drawMenuMode()
         if menuOptions[i] == 1 then
             ui.drawRect(vec2(-170+(220*i),-121+215),vec2(8+(220*i),49+215),rgbm(1,1,0,1),10,15,15)
         elseif menuOptions[i] == 0 then
-            ui.drawRect(vec2(-170+(220*i),-121+215),vec2(8+(220*i),49+215),rgbm(0,0.01,0.09,1),10,15,20)        
+            ui.drawRect(vec2(-170+(220*i),-121+215),vec2(8+(220*i),49+215),rgbm(0,0.01,0.09,0),10,15,20)        
         end
 
         display.image{image ="MFD.png",pos = vec2(-173+(220*i),-121.5+215),size = vec2(185,175),color = rgbm(1,1,1,1), uvStart = vec2((600+185*(i-1))/1536,1025/1210),uvEnd = vec2((785+185*(i-1))/1536, 1210/1210)}
@@ -1334,7 +1360,7 @@ function drawMenuMode()
     end
 
     if btnMid() then
-        
+        saveLastMenuState()
         if menuOptions[1] == 1 then
             currentActiveMenu = activeMenu[1]
             isSelectActive = true
@@ -1352,10 +1378,12 @@ end
 
 function drawMenu1Mode()
 
-    display.text{pos = vec2(50, 0), letter = vec2(60,50), spacing = -22,text="MENU", font = "Microsquare", color= rgbm(1,1,1,1)}
-    display.text{pos = vec2(40, 50), letter = vec2(50,40), spacing = -20,text="SELECT", font = "Microsquare", color= rgbm(1,1,1,1)}
-    display.text{pos = vec2(250, 50), letter = vec2(45,40), spacing = -20,text="RED ZONE", font = "Microsquare", color= rgbm(1,1,1,1)}
-    display.text{pos = vec2(475, 50), letter = vec2(45,40), spacing = -20,text="SHIFT UP", font = "Microsquare", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(50, 5), letter = vec2(60,60), spacing = -15,text="MENU", font = "MFDArial", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(55, 50), letter = vec2(40,60), spacing = -15,text="SELECT", font = "MFDArialItallic", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(268, 50), letter = vec2(36,60), spacing = -12,text="RED", font = "MFDArialItallic", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(349, 50), letter = vec2(36,60), spacing = -12,text="ZONE", font = "MFDArialItallic", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(482, 50), letter = vec2(38,60), spacing = -14.5,text="SHIFT", font = "MFDArialItallic", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(610, 50), letter = vec2(38,60), spacing = -15,text="UP", font = "MFDArialItallic", color= rgbm(1,1,1,1)}
 
     if btnRight() or btnLeft() then    
         for i=2,3 do
@@ -1385,7 +1413,7 @@ function drawMenu1Mode()
         if menu1Options[i] == 1 then
             ui.drawRect(vec2(-170+(220*i),-121+215),vec2(8+(220*i),49+215),rgbm(1,1,0,1),10,15,15)
         elseif menu1Options[i] == 0 then
-            ui.drawRect(vec2(-170+(220*i),-121+215),vec2(8+(220*i),49+215),rgbm(0,0.01,0.09,1),10,15,20)        
+            ui.drawRect(vec2(-170+(220*i),-121+215),vec2(8+(220*i),49+215),rgbm(0,0.01,0.09,0),10,15,20)        
         end
         if i==1 then
             display.image{image ="MFD.png",pos = vec2(-173+(220*i),-121.5+215),size = vec2(185,175),color = rgbm(1,1,1,1), uvStart = vec2((600+185*(i-2))/1536,1025/1210),uvEnd = vec2((785+185*(i-2))/1536, 1210/1210)}
@@ -1396,6 +1424,7 @@ function drawMenu1Mode()
     end
 
     if btnMid() then
+        saveLastMenuState()
         if menu1Options[2] == 1 then
             currentActiveMenu = activeMenu[2]
             isRedActive = true
@@ -1404,11 +1433,12 @@ function drawMenu1Mode()
             isShiftActive = true    
         end
         isMenuActive = false     
+        
     end
 end
 
 function drawShiftMenu()
-    display.text{pos = vec2(50,0), letter = vec2(60,50), spacing = -22,text="SHIFT UP", font = "Microsquare", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(50,0), letter = vec2(60,60), spacing = -20,text="SHIFT UP", font = "MFDArial", color= rgbm(1,1,1,1)}
     display.image{image ="MFD.png",pos = vec2(320,85),size = vec2(350,350),color = rgbm(1,1,1,1), uvStart = vec2(896/1536,151/1210),uvEnd = vec2(1266/1536, 521/1210)}
     display.image{image ="MFD.png",pos = vec2(820,160),size = vec2(80,270),color = rgbm(1,1,1,1), uvStart = vec2(1295/1536,250/1210),uvEnd = vec2(1375/1536, 520/1210)}
 
@@ -1419,10 +1449,11 @@ function drawShiftMenu()
     display.text{pos = vec2(585, 65), letter = vec2(50,45), spacing = -17,text="9", font = "Microsquare", color= rgbm(1,1,1,1)}
     display.text{pos = vec2(660, 215), letter = vec2(50,45), spacing = -17,text="10", font = "Microsquare", color= rgbm(1,1,1,1)}
 
-    display.text{pos = vec2(815,110), letter = vec2(55,40), spacing = -20,text="UP", font = "Microsquare", color= rgbm(1,1,1,1)}
-    display.text{pos = vec2(760,430), letter = vec2(60,40), spacing = -20,text="DOWN", font = "Microsquare", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(825,120), letter = vec2(40,40), spacing = -10,text="up", font = "MFDArial", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(790,430), letter = vec2(40,40), spacing = -10,text="down", font = "MFDArial", color= rgbm(1,1,1,1)}
     display.text{pos = vec2(185,400), letter = vec2(30,40), spacing = -10,text="x1000", font = "c7_mid", color= rgbm(1,1,1,1)}
-    display.text{pos = vec2(185,430), letter = vec2(30,40), spacing = -15,text="rl min", font = "c7_mid", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(185,430), letter = vec2(30,40), spacing = -10,text="r min", font = "c7_mid", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(200,430), letter = vec2(30,40), spacing = -10,text="/", font = "c7_mid", color= rgbm(1,1,1,1)}
     display.text{pos = vec2(164,413), letter = vec2(20,40), spacing = 12,text="[   ]", font = "c7_mid", color= rgbm(1,1,1,1)}
     local shiftPercentage = currentShiftTreshold*20 -- conversion to %
   
@@ -1437,7 +1468,7 @@ function drawShiftMenu()
     elseif btnMid() then
         isShiftActive = false
         shiftTreshold = tresholds[currentShiftTreshold+1]
-    elseif btnMenu() or btnReturn() then -- if return or menu button were pressed, return to selection menu
+    elseif btnMenu() then -- if menu button was pressed, return to selection menu
         isShiftActive = false
         isMenuActive = true
     end
@@ -1483,7 +1514,7 @@ function drawRedMenu()
     basex=165
     basey=80
 
-    display.text{pos = vec2(35,10), letter = vec2(60,60), spacing = -22,text="RED ZONE", font = "Microsquare", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(40,10), letter = vec2(60,60), spacing = -20,text="RED ZONE", font = "MFDArial", color= rgbm(1,1,1,1)}
 
     if btnUp() or btnDown() or btnLeft() or btnRight() then
         for i=1,7 do
@@ -1650,7 +1681,7 @@ function drawRedMenu()
         end
     end
 
-    if btnMenu() or btnReturn() then -- if return or menu button were pressed, return to selection menu
+    if btnMenu() then -- if menu button was pressed, return to selection menu
         isRedActive = false
         isMenuActive = true
     end
@@ -1660,7 +1691,7 @@ end
 function drawDisplayMenu()
     display.rect{pos= vec2(600,0), size= vec2(940,490), color= rgbm(0,0.01,0.09,1)}
     display.rect{pos= vec2(0,0), size= vec2(350,100), color= rgbm(0,0.01,0.09,1)}
-    display.text{pos = vec2(35,10), letter = vec2(60,60), spacing = -22,text="DISPLAY", font = "Microsquare", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(50,25), letter = vec2(60,60), spacing = -22,text="DISPLAY", font = "MFDArial", color= rgbm(1,1,1,1)}
 
 
     if btnMid() or btnUp() or btnDown() then
@@ -1814,8 +1845,8 @@ end
 
 function drawTwinButtons()
 
-    display.text{pos = vec2(180, 85), letter = vec2(51,40), spacing = -22,text="LEFT", font = "Microsquare", color= rgbm(1,1,1,1)} --left and right text, not related to twin buttons but it's included here for cleaner code
-    display.text{pos = vec2(490, 85), letter = vec2(51,40), spacing = -22,text="RIGHT", font = "Microsquare", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(170, 85), letter = vec2(40,50), spacing = -10,text="LEFT", font = "MFDArial", color= rgbm(1,1,1,1)} --left and right text, not related to twin buttons but it's included here for cleaner code
+    display.text{pos = vec2(490, 85), letter = vec2(40,50), spacing = -10,text="RIGHT", font = "MFDArial", color= rgbm(1,1,1,1)}
 
     for i=1,5 do --drawing all twin buttons
 
@@ -1946,7 +1977,6 @@ function drawTwinSetupMenu()
             isSelectingSide = false
         end
     
-    
     elseif isSelectingGauges and (btnLeft() or btnRight() or btnMid() or btnDown() or btnUp()) then
         twinTextColor = rgbm(1,1,0,1)
         for i=1, 3 do
@@ -1981,6 +2011,8 @@ function drawTwinSetupMenu()
                         isSelectingGauges = false
                         currentTwin[currentTwinNo][1] = buttonText[i][j]
                         hasSelectedLeft = true
+                        activeIcon[i][j] = 0
+                        activeIcon[1][1] = 1
                         --storedValues.currentTwin = storagePackNested(currentTwin)
                         goto continue 
                     elseif btnMid() and isSelectingRight then
@@ -1988,6 +2020,8 @@ function drawTwinSetupMenu()
                         isSelectingGauges = false
                         currentTwin[currentTwinNo][2] = buttonText[i][j]
                         hasSelectedRight = true
+                        activeIcon[i][j] = 0
+                        activeIcon[1][1] = 1
                         --storedValues.currentTwin = storagePackNested(currentTwin)
                         goto continue 
                     end
@@ -2028,7 +2062,7 @@ end
 
 function drawTwinMenu()
     
-    display.text{pos = vec2(40, 5), letter = vec2(65,45), spacing = -32,text="SELECT", font = "Microsquare", color= rgbm(1,1,1,1)}
+    display.text{pos = vec2(40, 5), letter = vec2(65,65), spacing = -20,text="SELECT", font = "MFDArial", color= rgbm(1,1,1,1)}
 
     if btnDown() or btnUp() or btnRight() or btnLeft() then    
         for j=1,3 do
@@ -2061,8 +2095,9 @@ function drawTwinMenu()
                         else
                            twinSelection[j][i-1] = 1
                         end
-                               
+
                     end
+
                     twinSelection[j][i] = 0
                     goto continue
                 end
@@ -2107,6 +2142,11 @@ function drawTwinMenu()
             end
         end
         
+    end
+
+    if btnMenu() then -- if menu button was pressed, return to selection menu
+        isSelectActive = false
+        isMenuActive = true
     end
 
     display.text{pos = vec2(150,70), letter = vec2(50,45), spacing = -12,text="TWIN", font = "Microsquare", color= rgbm(1,1,1,1)}
@@ -2161,15 +2201,19 @@ end
 
 function modeBehaviour()
     if btnMode() and not isMenuActive and not isShiftActive and not isRedActive and not isSelectActive then --only changing mode if the menu isn't opened
+        saveLastMenuState()
         modeNumber = modeNumber + 1
         if modeNumber == 4 then
             modeNumber=1
         end
     end 
 
-    if btnMenu() then
+    if btnMenu() and not isShiftActive and not isRedActive and not isSelectActive then --only opening and closing if the menu isn't opened
+        saveLastMenuState()
         isMenuActive = not isMenuActive
     end
+
+    
 
     if modeNumber == 1 then
         if isMenuActive then
@@ -2269,7 +2313,37 @@ function saveState() --saves everything (even though it runs every frame, it onl
     storedValues.screenBrightness = screenBrightness
 end
 
-function update(dt)
+
+
+function saveLastMenuState()
+    prevModeNumber = modeNumber
+    prevIsMenuActive = isMenuActive
+    prevIsSelectActive = isSelectActive
+    prevIsShiftActive = isShiftActive
+    prevIsRedActive = isRedActive
+end
+
+function loadLastMenuState()
+    local temp1 = modeNumber -- allows for infinite return loop
+    local temp2 = isMenuActive
+    local temp3 = isSelectActive
+    local temp4 = isShiftActive
+    local temp5 = isRedActive
+
+    modeNumber = prevModeNumber 
+    isMenuActive = prevIsMenuActive
+    isSelectActive = prevIsSelectActive
+    isShiftActive = prevIsShiftActive
+    isRedActive = prevIsRedActive
+
+    prevModeNumber = temp1
+    prevIsMenuActive = temp2
+    prevIsSelectActive = temp3
+    prevIsShiftActive = temp4
+    prevIsRedActive = temp5
+end
+
+function script.update(dt)
     
     if not isScreenOn then
         display.rect{pos= vec2(0,0), size= vec2(940,490), color= rgbm(0,0,0,1)}
@@ -2287,38 +2361,6 @@ function update(dt)
         end
 
         if booted then
-            --bootup:pause():setCurrentTime(0)
-            --drawTurboGauge(rightPivot,rightPos,rightOffset)
-            --drawTurboGraph()
-            
-            --drawThrottleGauge(leftPivot,leftPos,leftOffset)
-            --drawThrottleGraph()
-
-            --drawInjectorGauge(rightPivot,rightPos,rightOffset)
-            --drawIDCGraph()
-
-            --drawVoltGauge(rightPivot,rightPos, rightOffset)
-            --drawVoltGraph()
-
-            --drawOilTempGauge(rightPivot,rightPos, rightOffset)
-            --drawOilTempGraph()
-
-
-            --drawFTorqueGauge(rightPivot,rightPos,rightOffset)
-            --drawFTorqueGraph()
-
-            --drawExhGauge(rightPivot,rightPos,rightOffset)
-            --drawExhGraph()
-
-            --drawIntGauge(leftPivot,leftPos,leftOffset)
-            --drawIntGraph()
-
-            --drawMenuMode(true)
-            --drawTwinMenu()
-            --drawTwinSetupMenu()
-
-            --drawDisplayMenu()
-            
             shiftLightBehaviour()
             modeBehaviour()
             detectSwitchover()
@@ -2330,17 +2372,10 @@ function update(dt)
             end
             autoDimBehaviour()
             saveState()
-            --drawRedMenu()
-            --drawShiftMenu()
-            --drawSelectMenu()
-            --drawBarMenu()
+
+            if btnReturn() then 
+                loadLastMenuState()
+            end
         end
     end
 end
-
-
-
-
-
-
-  
