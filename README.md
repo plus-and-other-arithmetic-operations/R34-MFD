@@ -9,6 +9,7 @@ For now, it requires different data.acd files, as it needs to override the shift
 - Set up CM to use unpacked folder and delete the first entry of digital_instruments.ini
 - Head over to `C:\Program Files (x86)\Steam\steamapps\common\assettocorsa\content\cars\asc_nissan_r34_nur\extension`
 - DONT REPLACE THE EXT_CONFIG. Copy the relevant cfg section to the ext_config file
+- Install the fonts
 - Place the rest of the downloaded files in the directory, overwriting the old ones
 - Enjoy!
 
