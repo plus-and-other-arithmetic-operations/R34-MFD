@@ -1,6 +1,24 @@
 ## R34 Multi Function Display
 Fully functional MFD made in LUA for the asc_nissan_r34_nur.
 
+# FAQ
+
+> Pressing the Extra E button makes the rev light flash?
+
+- Yes. Extra E is merely a proxy extra switch used by the script to toggle the Rev Light on and off.
+
+> The script doesn't work for me! 
+
+-Lua scriptable displays were added in CSP 1.76. You need this version for it to work. This is explicit in the video's description.
+
+> I can't switch modes!
+
+- Refer to the user guide pdf present in the car's folder for instructions on how to use the display.
+
+> The screen is too dark!
+
+- Refer to the user guide pdf present in the car's folder for instructions on how to use the display - you can manually tweak the screen brightness. Furthermore, the screen's brightness may be heavily influenced by your install.
+
 # Installation:
 
 - Head over to `C:\Program Files (x86)\Steam\steamapps\common\assettocorsa\content\cars\asc_nissan_r34_nur\extension`
