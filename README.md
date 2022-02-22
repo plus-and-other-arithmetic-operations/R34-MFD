@@ -19,6 +19,10 @@ Fully functional MFD made in LUA for the asc_nissan_r34_nur.
 
 - Refer to the user guide pdf present in the car's folder for instructions on how to use the display - you can manually tweak the screen brightness. Furthermore, the screen's brightness may be heavily influenced by your install.
 
+> My display has no fonts!
+
+- Please download the most recent version, or follow the installation steps below. 
+
 # Installation:
 
 - Head over to `C:\Program Files (x86)\Steam\steamapps\common\assettocorsa\content\cars\asc_nissan_r34_nur\extension`
