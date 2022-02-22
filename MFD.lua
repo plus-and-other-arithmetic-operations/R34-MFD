@@ -2359,7 +2359,7 @@ function script.update(dt)
         if booted then
             shiftLightBehaviour()
             modeBehaviour()
-            detectSwitchover()
+            --detectSwitchover() disabled for now
             if btnDisp() then --hacky but easier to do this since it always opens on top of every menu
                 isDisplayActive = not isDisplayActive
             end
