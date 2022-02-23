@@ -9,7 +9,7 @@ Fully functional MFD made in LUA for the asc_nissan_r34_nur.
 
 > The script doesn't work for me! 
 
--Lua scriptable displays were added in CSP 1.76. You need this version for it to work. This is explicit in the video's description.
+- Lua scriptable displays were added in CSP 1.76. You need this version for it to work. This is explicit in the video's description.
 
 > I can't switch modes!
 
