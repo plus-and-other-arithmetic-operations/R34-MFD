@@ -3,6 +3,11 @@ Fully functional MFD made in LUA for the asc_nissan_r34_nur.
 
 # FAQ
 
+> My loading times are enourmous/ my game is freezing!
+
+- From the docs - `Uses Microsoft Media Foundation framework for video decoding and hardware acceleration, so only supports codecs supported by Windows.`. If you're using older Windows 10 versions, this may be the case, otherwise you might need to enable said framework. This is most certainly a patch issue, we're still trying to pinpoint the exact reason as to why this happens. **To fix: Remove the original MFD.lua file, download the MFDNoMP4.lua file and rename it to MFD.lua.**
+
+
 > Pressing the Extra E button makes the rev light flash?
 
 - Yes. Extra E is merely a proxy extra switch used by the script to toggle the Rev Light on and off.
