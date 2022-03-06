@@ -137,7 +137,7 @@ local intVals = fillTable(399)
 
 local colours = {
     white = rgbm(1,1,1,1),
-    red = rgbm(1,0,0,0),
+    red = rgbm(1,0,0,1),
     black = rgbm(0,0,0,1),
     none = rgbm(0,0,0,0),
     yellow = rgbm(1,1,0,1),
@@ -1325,7 +1325,7 @@ function drawGraph()
 end
 
 function handleBootupSequence()
-    if not string.find(ac.getCarID(0), "asc_") then
+    if not string.find(ac.getCarID(-1), "asc_") then
         os.showMessage("hi kai")
     end
 end
